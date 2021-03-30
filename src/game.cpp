@@ -2,28 +2,38 @@
 
 
 Game::Game()
+    :
+    menu_state(new MainMenuState()),
+    world_state(new WorldMapState()),
+    local_state(new LocalMapState()),
+    battle_state(new BattleState()),
+    vms(sf::VideoMode::getFullscreenModes())
 {    
-    std::vector<sf::VideoMode> VModes = sf::VideoMode::getFullscreenModes();
-    m_Window.create(VModes.at(0), "Title", sf::Style::Default | sf::Style::Close);
+    m_Window.create(vms.at(0), "Title", sf::Style::Fullscreen);
 }
 
-Game::~Game() {}
+Game::~Game()
+{
+    free_states();
+}
 
+void Game::free_states()
+{
+    delete menu_state;
+    delete world_state;
+    delete local_state;
+    delete battle_state;
+}
 
 void Game::start()
 {
     sf::Clock clock;
 
-    MainMenuState menuState;
-    WorldMapState worldMapState;
-    LocalMapState localMapState;
-    BattleState battleState;
-
-    gameMode().Add("mainmenu", &menuState);
-    gameMode().Add("worldmap", &worldMapState);
-    gameMode().Add("localmap", &localMapState);
-    gameMode().Add("battle", &battleState);
-
+    gameMode().Add("mainmenu", menu_state);
+    gameMode().Add("worldmap", world_state);
+    gameMode().Add("localmap", local_state);
+    gameMode().Add("battle", battle_state);
+    
     gameMode().Push("mainmenu");
 
     while(m_Window.isOpen())

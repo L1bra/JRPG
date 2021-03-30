@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <map>
+#include <map>  // unordered ?
 
 
 enum Textures
@@ -17,10 +17,14 @@ enum Textures
     Magic,
     Enemy,
 
-    // arrow cursor
-    Arrow,
+    // cursor
+    Arrow,  // remove
+    Cursor,
+    
+    // action frame
+    ActionFrame,
 
-    // menu cursor
+    // menu cursor  // clean up
     MenuPlay,
     MenuSettings,
     MenuExit
@@ -29,7 +33,8 @@ enum Textures
 
 enum Fonts
 {
-    Arial
+    Arial,
+    Pixel
 };
 
 

@@ -2,11 +2,10 @@
 #define MAIN_MENU_STATE_H_
 
 #include "state_machine.h"
+#include "gui.h"
 
 
-// definition in header ?
-const float BUTTON_OFFSET = 16.f;
-
+// TODO: move to src file
 struct button
 {
     sf::Vector2f resume = {690.f, 264.f};
@@ -26,19 +25,16 @@ struct button
 };
 
 
-
 class MainMenuState : public State
 {
 private:
-    std::shared_ptr<sf::Texture> m_MainMenuTexture;
-    sf::Sprite m_MainMenuSprite;
+    void init_gui();
+    void reset_gui();
 
-    std::shared_ptr<sf::Texture> m_MenuCursorTexture;
-    sf::Sprite m_MenuCursorSprite;
-
-    button button_coord;
-
-    bool isClosing;
+    void update_buttons();
+    void render_buttons(sf::RenderWindow& window);
+    void free_buttons();
+    
 public:
     MainMenuState();
     ~MainMenuState();
@@ -48,6 +44,26 @@ public:
     void Render(sf::RenderWindow& window);
     void OnEnter();
     void OnExit();
+
+    void TimeRemaining();
+    void Decide();
+    bool isReady();
+
+private:
+    std::shared_ptr<sf::Texture> m_MainMenuTexture;
+    sf::Sprite m_MainMenuSprite;
+
+    std::shared_ptr<sf::Texture> m_MenuCursorTexture;
+    sf::Sprite m_MenuCursorSprite;
+
+    std::shared_ptr<sf::Font> m_Font;
+
+    std::map<std::string, gui::Button*> buttons;
+
+    button button_coord;
+    const float BUTTON_OFFSET;
+
+    bool isClosing;
 };
 
 #endif  // MAIN_MENU_STATE_H_

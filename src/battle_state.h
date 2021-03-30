@@ -3,17 +3,16 @@
 
 #include "state_machine.h"
 #include "entity.h"
-
+#include "action.h"
 
 class BattleState : public State
 {
 private:
-    // private menu methods
-    std::shared_ptr<sf::Texture> m_BattleTexture;
-    sf::Sprite m_BattleSprite;
-public:
-    // public methods
+    void init_party_entities();
+    void init_enemy_entities();
 
+    static bool sort_by_time(State& a, State& b);
+public:
     BattleState();
     ~BattleState();
 
@@ -23,36 +22,74 @@ public:
     void OnEnter();
     void OnExit();
 
-    void init_party_entities();
-    void init_enemy_entities();
+    void action_tick();
+    void action_execute();
+
+    // remove
+    void TimeRemaining();
+    void Decide();
+    bool isReady();
 private:
+    std::shared_ptr<sf::Texture> m_BattleTexture;
+    sf::Sprite m_BattleSprite;
+    
     Entity entities[MAX_ENTITIES];
+    std::vector<State*> m_Actions;
+
+    StateMachine* battleMode;
+    State* battle_tick;
+    State* battle_execute;
 };
 
 
-#if 0
-
 class BattleTick : public State
 {
-private:
+public:
+    BattleTick(StateMachine* bm);
+    ~BattleTick();
+
     void Input(sf::Keyboard::Key key_code);
     void Update(float elapsedTime);
     void Render(sf::RenderWindow& window);
     void OnEnter();
     void OnExit();
+
+    // remove
+    void TimeRemaining();
+    void Decide();
+    bool isReady();
+
+private:
+    std::shared_ptr<sf::Texture> m_ActionFrameTexture;
+    sf::Sprite m_ActionFrameSprite;
+
+    StateMachine* battleMode;
+public:
+
+private:
+    // fields
 };
 
 
 class BattleExecute : public State
 {
-private:
+public:
+    BattleExecute(StateMachine* bm);
+    ~BattleExecute();
+
     void Input(sf::Keyboard::Key key_code);
     void Update(float elapsedTime);
     void Render(sf::RenderWindow& window);
     void OnEnter();
     void OnExit();
+
+    // remove
+    void TimeRemaining();
+    void Decide();
+    bool isReady();
+private:
+    StateMachine* battleMode;
 };
 
-#endif  // if 0
 
 #endif  // BATTLE_STATE_H_
