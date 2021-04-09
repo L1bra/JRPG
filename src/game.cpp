@@ -8,13 +8,27 @@ Game::Game()
     local_state(new LocalMapState()),
     battle_state(new BattleState()),
     vms(sf::VideoMode::getFullscreenModes())
-{    
-    m_Window.create(vms.at(0), "Title", sf::Style::Fullscreen);
+{
+    init_settings();
+
+    if(gfx.fullscreen)
+        m_Window = new sf::RenderWindow(gfx.resolution, gfx.title, sf::Style::Fullscreen);
+    else
+        m_Window = new sf::RenderWindow(gfx.resolution, gfx.title, sf::Style::Titlebar | sf::Style::Close);
+    
+    m_Window->setFramerateLimit(gfx.framerate);
+    m_Window->setVerticalSyncEnabled(gfx.vsync);
 }
 
 Game::~Game()
 {
     free_states();
+    delete m_Window;
+}
+
+void Game::init_settings()
+{
+    gfx.load("src/cfg/gfx.ini");
 }
 
 void Game::free_states()
@@ -36,16 +50,16 @@ void Game::start()
     
     gameMode().Push("mainmenu");
 
-    while(m_Window.isOpen())
+    while(m_Window->isOpen())
     {
         sf::Event event;
-        while(m_Window.pollEvent(event))
+        while(m_Window->pollEvent(event))
         {
             switch(event.type)
             {
                 case sf::Event::Closed:
                 {
-                    m_Window.close();
+                    m_Window->close();
                 } break;
 
                 case sf::Event::KeyPressed: //  Main menu and parts where single input required
@@ -66,22 +80,19 @@ void Game::start()
     }
 }
 
-
 void Game::input()
 {
     gameMode().Input(sf::Keyboard::Unknown); // idk what im doing
 }
-
 
 void Game::update(float dt)
 {
     gameMode().Update(dt);
 }
 
-
 void Game::draw()
 {   
-    m_Window.clear(sf::Color::White);
-    gameMode().Render(m_Window);
-    m_Window.display();
+    m_Window->clear(sf::Color::White);
+    gameMode().Render(*m_Window);
+    m_Window->display();
 }

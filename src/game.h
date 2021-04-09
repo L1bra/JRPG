@@ -2,6 +2,7 @@
 #define GAME_H_
 
 #include "states.h"
+#include "gfx.h"
 
 
 class Game
@@ -11,6 +12,8 @@ private:
     void update(float dt);
     void draw();
 
+    void init_settings();
+
     void free_states();
 public:
     Game();
@@ -18,8 +21,9 @@ public:
 
     void start();
 private:
-    sf::RenderWindow m_Window;
-    std::vector<sf::VideoMode> vms;
+    sf::RenderWindow* m_Window;
+    std::vector<sf::VideoMode> vms; // remove ?
+    GFX gfx;
 
     MainMenuState* menu_state;
     WorldMapState* world_state;
