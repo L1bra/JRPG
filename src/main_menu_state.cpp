@@ -3,14 +3,18 @@
 MainMenuState::MainMenuState()
     :
     m_MainMenuTexture(ResourceManager::loadTexture(Textures::MenuBackground, "src/res/background/menu_resume_state.png")),
-    m_MenuCursorTexture(ResourceManager::loadTexture(Textures::MenuSettings, "src/res/background/menu_cursor.png")),
-    m_Font(ResourceManager::loadFont(Fonts::Pixel, "src/res/fonts/PixelLettersFull.ttf")),
-    BUTTON_OFFSET(16.f),
-    isClosing(false)
+    m_Font(ResourceManager::loadFont(Fonts::Arial, "src/res/fonts/PixellettersFull.ttf")),
+    cursor_pos({0.f, 0.f}),
+    enter_pressed(false),
+    is_closing(false),
+    cursor_index(0)
 {
 }
 
-MainMenuState::~MainMenuState() {}
+MainMenuState::~MainMenuState()
+{
+    free_buttons();
+}
 
 void MainMenuState::TimeRemaining() {}
 void MainMenuState::Decide() {}
@@ -26,25 +30,12 @@ void MainMenuState::OnEnter()
 
 void MainMenuState::OnExit()
 {
-    free_buttons();
 }
-
-
-// resume = {690.f, 264.f};
-// new_game = {618.f, 444.f};
-// save_load = {564.f, 624.f};
-// settings = {654.f, 804.f};
-// exit = {834.f, 984.f};
 
 void MainMenuState::init_gui()
 {
     const sf::VideoMode& vm = sf::VideoMode::getDesktopMode();
     m_MainMenuSprite.setTexture(*m_MainMenuTexture);
-
-    m_MenuCursorSprite.setTexture(*m_MenuCursorTexture);
-    m_MenuCursorSprite.setTextureRect(sf::IntRect(0, 0, button_coord.new_game_cursor, 1));
-    m_MenuCursorSprite.setScale(6.f, 6.f);                                                                    // scale to native
-    m_MenuCursorSprite.setPosition({button_coord.new_game.x, button_coord.new_game.y + BUTTON_OFFSET});       // New game button coords
 
     m_MainMenuSprite.setScale(vm.width / m_MainMenuSprite.getLocalBounds().width, 
                             vm.height / m_MainMenuSprite.getLocalBounds().height);
@@ -57,12 +48,28 @@ void MainMenuState::init_gui()
         exit
     */
 
-	this->buttons["GAME_STATE"] = new gui::Button(
-		gui::p2pX(15.6f, vm), gui::p2pY(30.f, vm), 
-		gui::p2pX(0.f, vm), gui::p2pY(0.f, vm),
-		*m_Font, "New Game", gui::calcCharSize(vm),
-		sf::Color(200, 200, 200, 200), sf::Color(255, 255, 255, 255), sf::Color(20, 20, 20, 50),
-		sf::Color(70, 70, 70, 0), sf::Color(150, 150, 150, 0), sf::Color(20, 20, 20, 0)
+	buttons["NEW_GAME"] = new gui::Button(
+        gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
+        gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
+		*m_Font, "New Game", gui::calcCharSize(vm)
+	);
+    
+    buttons["SAVE_LOAD"] = new gui::Button(
+        gui::p2pX(50.f, vm), gui::p2pY(50.f, vm),
+        gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
+		*m_Font, "Save/Load", gui::calcCharSize(vm)
+    );
+
+    buttons["SETTINGS"] = new gui::Button(
+        gui::p2pX(50.f, vm), gui::p2pY(60.f, vm),
+        gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
+		*m_Font, "Settings", gui::calcCharSize(vm)
+	);
+
+    buttons["EXIT"] = new gui::Button(
+        gui::p2pX(50.f, vm), gui::p2pY(70.f, vm),
+        gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
+		*m_Font, "Exit", gui::calcCharSize(vm)
 	);
 }
 
@@ -72,9 +79,12 @@ void MainMenuState::reset_gui()
     init_gui();
 }
 
-void MainMenuState::update_buttons()
+void MainMenuState::update_buttons(sf::Vector2f pos)
 {
-    //
+    for(auto& it: buttons)
+    {
+        it.second->update(pos);
+    }
 }
 
 void MainMenuState::render_buttons(sf::RenderWindow& window)
@@ -96,44 +106,16 @@ void MainMenuState::Input(sf::Keyboard::Key key_code)
                 gameMode().Pop();   // to the last state
         } break;
 
-        case sf::Keyboard::Up:  // TODO: "+ BUTTON_OFFSET" idea is awful 
+        case sf::Keyboard::Up:
         {
-            if(m_MenuCursorSprite.getPosition().y == button_coord.new_game.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.resume.x, button_coord.resume.y + BUTTON_OFFSET});
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.save_load.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.new_game.x, button_coord.new_game.y + BUTTON_OFFSET});
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.settings.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.save_load.x, button_coord.save_load.y + BUTTON_OFFSET});
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.exit.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.settings.x, button_coord.settings.y + BUTTON_OFFSET});
-            }
+            if(cursor_index >= 0)
+                cursor_index = (cursor_index - 1) % MAIN_MENU_ITEMS;
         } break;
         
         case sf::Keyboard::Down:
         {
-            if(m_MenuCursorSprite.getPosition().y == button_coord.resume.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.new_game.x, button_coord.new_game.y + BUTTON_OFFSET});
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.new_game.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.save_load.x, button_coord.save_load.y + BUTTON_OFFSET});
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.save_load.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.settings.x, button_coord.settings.y + BUTTON_OFFSET});
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.settings.y + BUTTON_OFFSET)
-            {
-                m_MenuCursorSprite.setPosition({button_coord.exit.x, button_coord.exit.y + BUTTON_OFFSET});
-            }
+            if(cursor_index <= MAIN_MENU_ITEMS)
+                cursor_index = (cursor_index + 1) % MAIN_MENU_ITEMS;
         } break;
         
         case sf::Keyboard::Left:
@@ -146,80 +128,85 @@ void MainMenuState::Input(sf::Keyboard::Key key_code)
             //
         } break;
 
-        case sf::Keyboard::Enter:   // TODO: add another buttons
+        case sf::Keyboard::Enter:
         {
-            if(m_MenuCursorSprite.getPosition().y == button_coord.resume.y + BUTTON_OFFSET)
-            {
-                // TODO: Hide resume button or print something like "there is no to resume u idiot..."
-                if(gameMode().size() >= 2)
-                    gameMode().Pop();   // to the last state
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.new_game.y + BUTTON_OFFSET)
+            enter_pressed = true;
+        } break;
+    }
+}
+
+// TODO: update buttons then update state
+void MainMenuState::Update(float elapsedTime)
+{
+    switch(cursor_index)
+    {
+        case BTN_MENU_PLAY:
+        {
+            cursor_pos = buttons["NEW_GAME"]->get_pos();
+            if(enter_pressed)
             {
                 do
                 {
                     gameMode().Pop();
-                } while ( gameMode().size() != 0);
+                } while (gameMode().size() != 0);
+                
+                enter_pressed = false;
 
                 gameMode().Push("worldmap");
             }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.save_load.y + BUTTON_OFFSET)
+        } break;
+
+        case BTN_MENU_SAVE:
+        {
+            cursor_pos = buttons["SAVE_LOAD"]->get_pos();
+            if(enter_pressed)
             {
-                // TODO: save/load
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.settings.y + BUTTON_OFFSET)
-            {
-                // TODO: settings
-            }
-            else if(m_MenuCursorSprite.getPosition().y == button_coord.exit.y + BUTTON_OFFSET)
-            {
-                isClosing = true;
+                //
+                enter_pressed = false;
             }
         } break;
 
-    }
-}
+        case BTN_MENU_SETTINGS:
+        {
+            cursor_pos = buttons["SETTINGS"]->get_pos();
+            if(enter_pressed)
+            {
+                //
+                enter_pressed = false;
+            }
+        } break;
 
+        case BTN_MENU_EXIT:
+        {
+            cursor_pos = buttons["EXIT"]->get_pos();
+            if(enter_pressed)
+            {
+                is_closing = true;
+                enter_pressed = false;
+            }
+        } break;
 
-void MainMenuState::Update(float elapsedTime)
-{
-    if(m_MenuCursorSprite.getPosition().y == button_coord.resume.y + BUTTON_OFFSET)
-    {
-        m_MenuCursorSprite.setTextureRect(sf::IntRect(0, 0, button_coord.resume_cursor, 1));
+        default: {} break;
     }
-    else if(m_MenuCursorSprite.getPosition().y == button_coord.new_game.y + BUTTON_OFFSET)
-    {
-        m_MenuCursorSprite.setTextureRect(sf::IntRect(0, 0, button_coord.new_game_cursor, 1));
-    }
-    else if(m_MenuCursorSprite.getPosition().y == button_coord.save_load.y + BUTTON_OFFSET)
-    {
-        m_MenuCursorSprite.setTextureRect(sf::IntRect(0, 0, button_coord.save_load_cursor, 1));
-    }
-    else if(m_MenuCursorSprite.getPosition().y == button_coord.settings.y + BUTTON_OFFSET)
-    {
-        m_MenuCursorSprite.setTextureRect(sf::IntRect(0, 0, button_coord.settings_cursor, 1));
-    }
-    else if(m_MenuCursorSprite.getPosition().y == button_coord.exit.y + BUTTON_OFFSET)
-    {
-        m_MenuCursorSprite.setTextureRect(sf::IntRect(0, 0, button_coord.exit_cursor, 1));
-    }
+
+    update_buttons(cursor_pos);
 }
 
 
 void MainMenuState::Render(sf::RenderWindow& window)
 {
-    if(isClosing) // ???
+    if(is_closing)
         window.close();
         
     window.draw(m_MainMenuSprite);
-    window.draw(m_MenuCursorSprite);
+    render_buttons(window);
 }
 
 void MainMenuState::free_buttons()
 {
-    for(auto it = buttons.begin(); it != buttons.end(); ++it)
+    for(auto& it : buttons)
     {
-        delete it->second;
+        delete it.second;
     }
     buttons.clear();
 }

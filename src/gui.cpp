@@ -1,13 +1,14 @@
 #include "gui.h"
+#include <iostream>
 
 const float gui::p2pX(const float p, const sf::VideoMode& vm)
 {
-    return std::floor(static_cast<float>(vm.width) * (p / 100.f));
+    return std::floor(static_cast<float>(vm.width) * (p/ 100.f));
 }
 
 const float gui::p2pY(const float p, const sf::VideoMode& vm)
 {
-    return std::floor(static_cast<float>(vm.width) * (p/ 100.f));
+    return std::floor(static_cast<float>(vm.height) * (p/ 100.f));
 }
 
 const unsigned gui::calcCharSize(const sf::VideoMode& vm, const unsigned modifier)
@@ -15,9 +16,9 @@ const unsigned gui::calcCharSize(const sf::VideoMode& vm, const unsigned modifie
     return static_cast<unsigned>((vm.width + vm.height) / modifier);
 }
 
-
+// TODO: rename variables
 gui::Button::Button(float x, float y, float width, float height,
-                sf::Font font, std::string text, unsigned character_size,
+                sf::Font font, std::string str, unsigned character_size,
                 sf::Color text_idle_color, sf::Color text_hover_color, 
                 sf::Color text_active_color, sf::Color idle_color, 
                 sf::Color hover_color, sf::Color active_color,
@@ -27,9 +28,14 @@ gui::Button::Button(float x, float y, float width, float height,
                 short unsigned id
                 )
         :
-        button_state(BTN_IDLE),
+        x(x),
+        y(y),
         id(id),
         font(font),
+        width(width),
+        height(height),
+        button_state(BTN_IDLE),
+        button_pos(this->width, this->height),
         textIdleColor(text_idle_color),
         textHoverColor(text_hover_color),
         textActiveColor(text_active_color),
@@ -47,8 +53,8 @@ gui::Button::Button(float x, float y, float width, float height,
     shape.setOutlineColor(outline_idle_color);
 
     // TODO: rename text string
-    this->text.setFont(font);
-    this->text.setString(text);
+    this->text.setFont(this->font);
+    this->text.setString(str);
     this->text.setFillColor(text_idle_color);
     this->text.setCharacterSize(character_size);
     this->text.setPosition(
@@ -87,11 +93,21 @@ void gui::Button::set_id(const short unsigned id)
     this->id = id;
 }
 
-void gui::Button::update(const sf::Vector2f cursor_pos)  // const sf::Vector2i& mouse_pos_window
+sf::Vector2f gui::Button::get_pos() const
+{
+    return this->shape.getPosition();
+}
+
+BTN_STATE gui::Button::get_state() const
+{
+    return button_state;
+}
+
+void gui::Button::update(const sf::Vector2f& cursor_pos)
 {
     button_state = BTN_IDLE;
 
-    if(shape.getGlobalBounds().contains(cursor_pos))
+    if (cursor_pos == this->shape.getPosition())
     {
         button_state = BTN_HOVER;
 
@@ -100,37 +116,37 @@ void gui::Button::update(const sf::Vector2f cursor_pos)  // const sf::Vector2i& 
         {
             button_state = BTN_ACTIVE;
         }
+    }
 
-        switch(button_state)
+    switch(button_state)
+    {
+        case BTN_IDLE:
         {
-            case BTN_IDLE:
-            {
-                shape.setFillColor(idleColor);
-                this->text.setFillColor(textIdleColor);
-                shape.setOutlineColor(outlineIdleColor);
-            } break;
+            shape.setFillColor(idleColor);
+            this->text.setFillColor(textIdleColor);
+            shape.setOutlineColor(outlineIdleColor);
+        } break;
 
-            case BTN_HOVER:
-            {
-                shape.setFillColor(hoverColor);
-                this->text.setFillColor(textHoverColor);
-                shape.setOutlineColor(outlineHoverColor);
-            } break;
+        case BTN_HOVER:
+        {
+            shape.setFillColor(hoverColor);
+            this->text.setFillColor(textHoverColor);
+            shape.setOutlineColor(outlineHoverColor);
+        } break;
 
-            case BTN_ACTIVE:
-            {
-                shape.setFillColor(activeColor);
-                this->text.setFillColor(textActiveColor);
-                shape.setOutlineColor(outlineActiveColor);
-            } break;
+        case BTN_ACTIVE:
+        {
+            shape.setFillColor(activeColor);
+            this->text.setFillColor(textActiveColor);
+            shape.setOutlineColor(outlineActiveColor);
+        } break;
 
-            default:
-            {
-                shape.setFillColor(sf::Color::Red);
-                this->text.setFillColor(sf::Color::Green);
-                shape.setOutlineColor(sf::Color::Blue);
-            } break;
-        }
+        default:
+        {
+            shape.setFillColor(sf::Color::Red);
+            this->text.setFillColor(sf::Color::Green);
+            shape.setOutlineColor(sf::Color::Blue);
+        } break;
     }
 }
 

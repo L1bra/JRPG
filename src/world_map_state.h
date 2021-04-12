@@ -5,13 +5,13 @@
 #include "random_gen.h"
 #include "entity.h"
 
-
 enum class Choose_state : uint8_t
 {
     Friend = 0,
     Enemy
 };
 
+static const sf::Vector2f PLAYER_SPAWN_POSITION = {32, 850};
 
 class WorldMapState : public State
 {
@@ -31,11 +31,15 @@ public:
     WorldMapState();
     ~WorldMapState();
 
-    void Input(sf::Keyboard::Key key_code);
-    void Update(float elapsedTime);
-    void Render(sf::RenderWindow& window);
-    void OnEnter();
-    void OnExit();
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
+
+    void TimeRemaining() override;
+    void Decide() override;
+    bool isReady() override;
 
 private:
     std::shared_ptr<sf::Texture> m_WorldMapTexture;

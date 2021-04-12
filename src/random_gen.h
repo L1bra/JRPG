@@ -1,16 +1,13 @@
 #ifndef RANDOM_GEN_H_
 #define RANDOM_GEN_H_
 
-#include <random>
-
+#include <cstdlib>
 
 class Random
 {
 public:
-    static int getInt(int, int);
-private:
-    Random() {};
+
+    static float float_range(int start, int end);
 };
 
-
-#endif  // RANDOM_GEN_H_
+#endif // RANDOM_GEN_H_
