@@ -1,5 +1,4 @@
 #include "world_map_state.h"
-#include <iostream>
 
 WorldMapState::WorldMapState()
 {
@@ -10,11 +9,14 @@ WorldMapState::WorldMapState()
     m_WorldMapSprite.setScale(targetSize.x / m_WorldMapSprite.getLocalBounds().width,
                                 targetSize.y / m_WorldMapSprite.getLocalBounds().height);
 
-    // int s = *(&entities + 1) - entities;    // debug
-    // printf("size of entities: %d\n", s);
+#if DEBUG
+    int s = *(&entities + 1) - entities;
+    printf("size of entities: %d\n", s);
+#endif
 }
 
 WorldMapState::~WorldMapState() {}
+
 
 
 void WorldMapState::OnEnter()
@@ -25,6 +27,10 @@ void WorldMapState::OnEnter()
 
 
 void WorldMapState::OnExit() { /* on exit */ }
+
+void WorldMapState::TimeRemaining() {}
+void WorldMapState::Decide() {}
+bool WorldMapState::isReady() { return true; } // ???
 
 
 void WorldMapState::Input(sf::Keyboard::Key key_code)   // TODO: implement paravozik-style
@@ -104,7 +110,7 @@ void WorldMapState::Render(sf::RenderWindow& window)
 
 void WorldMapState::init_player_entity()
 {
-    entities[PLAYER_ENTITY_INDEX] = init_entity({32, 850}, "src/res/sprites/magic0.png");
+    entities[PLAYER_ENTITY_INDEX] = init_entity(PLAYER_SPAWN_POSITION, "src/res/sprites/magic0.png");
 }
 
 
@@ -114,14 +120,20 @@ void WorldMapState::spawn_enemy()
     {
         for(int i = 0; i < (ENEMY_ENTITY_OFFSET + 2); i++)
         {
-            int enemy_x = Random::getInt(0, 1920);  // better solution
-            int enemy_y = Random::getInt(0, 1920);
-            int enemy_spawn_dir = Random::getInt(0, 3);
+            sf::Vector2f position(0, 0);
+            do
+            {
+                // TODO: change '1920' and '1080' to current vmode
+                position.x = Random::float_range(0, 1920);
+                position.y = Random::float_range(0, 1080);
+            } while (position == PLAYER_SPAWN_POSITION);
+            
+            float enemy_spawn_dir = Random::float_range(0, 3);
 
-            Entity enemy = init_entity({enemy_x, (enemy_y / 2)}, "src/res/sprites/enemy.png");
+            Entity enemy = init_entity(position, "src/res/sprites/enemy.png");
             enemies.push_back(std::move(enemy));
             
-            switch(enemy_spawn_dir)
+            switch((int)enemy_spawn_dir)
             {
                 case 0:  entities[ENEMY_ENTITY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(0, 21, 24, 21)); break;
                 case 1:  entities[ENEMY_ENTITY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24)); break;
