@@ -1,31 +1,28 @@
 #include "state_machine.h"
 #include <iostream>
 
-
-// EmptyState definition
-
 EmptyState::EmptyState() {}
-
 EmptyState::~EmptyState() {}
-
 void EmptyState::Input(sf::Keyboard::Key key_code) {}
-
 void EmptyState::Update(float elapsedTime) {}
-
 void EmptyState::Render(sf::RenderWindow& window) {}
-
 void EmptyState::OnEnter() {}
-
 void EmptyState::OnExit() {}
 
 
-StateStack::StateStack()
-:state(new EmptyState()), top(new EmptyState())
-{}
+StateMachine::StateMachine()
+    :
+    state(new EmptyState()),
+    top(new EmptyState())
+{
+}
 
-StateStack::~StateStack() {}
+// TODO: 
+StateMachine::~StateMachine() 
+{
+}
 
-void StateStack::Input(sf::Keyboard::Key key_code)
+void StateMachine::Input(sf::Keyboard::Key key_code)
 {
     if(m_Stack.size())
     {
@@ -34,7 +31,7 @@ void StateStack::Input(sf::Keyboard::Key key_code)
     }
 }
 
-void StateStack::Update(float elapsedTime)
+void StateMachine::Update(float elapsedTime)
 {
     if(m_Stack.size())
     {
@@ -43,7 +40,7 @@ void StateStack::Update(float elapsedTime)
     }
 }
 
-void StateStack::Render(sf::RenderWindow& window)
+void StateMachine::Render(sf::RenderWindow& window)
 {
     if(m_Stack.size())
     {
@@ -52,38 +49,39 @@ void StateStack::Render(sf::RenderWindow& window)
     }
 }
 
-void StateStack::Push(std::string name)
+void StateMachine::Push(const std::string& name)
 {
     state->OnExit();
     state = m_States[name];
 
     m_Stack.push_back(state);
+    // TODO: logger
+    std::cout << name << " pushed to stack." << std::endl;
     state->OnEnter();
 }
 
-void StateStack::Add(std::string name, State* state)
+void StateMachine::Add(std::string name, State* state)
 {
     m_States[name] = state;
 }
 
-void StateStack::Pop()
+void StateMachine::Pop()
 {
     m_Stack.pop_back();
 }
 
-bool StateStack::isEmpty()
+bool StateMachine::isEmpty()
 {
     return m_Stack.size() ? 1 : 0;
 }
 
-std::size_t StateStack::size()
+std::size_t StateMachine::size()
 {
     return m_Stack.size();
 }
 
-
-StateStack& gameMode()
+StateMachine& gameMode()
 {
-    static StateStack ss;
+    static StateMachine ss;
     return ss;
 }

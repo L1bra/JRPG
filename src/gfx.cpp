@@ -68,7 +68,7 @@ bool GFX::load(const std::string& path)
         {
             case Options::title:
             {
-                token = tmp.substr(tmp.find(del));
+                token = tmp.substr(tmp.find(del) + 1);
                 title = token;
             } break;
 

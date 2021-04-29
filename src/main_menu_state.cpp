@@ -1,13 +1,16 @@
 #include "main_menu_state.h"
 
-MainMenuState::MainMenuState()
+MainMenuState::MainMenuState(GFX* gfx)
     :
     m_MainMenuTexture(ResourceManager::loadTexture(Textures::MenuBackground, "src/res/background/menu_resume_state.png")),
     m_Font(ResourceManager::loadFont(Fonts::Arial, "src/res/fonts/PixellettersFull.ttf")),
+    m_MainMenuSprite(*m_MainMenuTexture),
     cursor_pos({0.f, 0.f}),
     enter_pressed(false),
     is_closing(false),
-    cursor_index(0)
+    cursor_index(0),
+    gfx_data(gfx),
+    vm(gfx_data->resolution)
 {
 }
 
@@ -15,11 +18,6 @@ MainMenuState::~MainMenuState()
 {
     free_buttons();
 }
-
-void MainMenuState::TimeRemaining() {}
-void MainMenuState::Decide() {}
-bool MainMenuState::isReady() { return true; }; // ???
-
 
 void MainMenuState::OnEnter()
 {
@@ -32,11 +30,9 @@ void MainMenuState::OnExit()
 {
 }
 
+// @BUG: scalable window
 void MainMenuState::init_gui()
-{
-    const sf::VideoMode& vm = sf::VideoMode::getDesktopMode();
-    m_MainMenuSprite.setTexture(*m_MainMenuTexture);
-
+{    
     m_MainMenuSprite.setScale(vm.width / m_MainMenuSprite.getLocalBounds().width, 
                             vm.height / m_MainMenuSprite.getLocalBounds().height);
 
@@ -48,29 +44,29 @@ void MainMenuState::init_gui()
         exit
     */
 
-	buttons["NEW_GAME"] = new gui::Button(
+    buttons["NEW_GAME"] = new gui::Button(
         gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
         gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
-		*m_Font, "New Game", gui::calcCharSize(vm)
-	);
-    
+        *m_Font, "New Game", gui::calcCharSize(vm)
+    );
+
     buttons["SAVE_LOAD"] = new gui::Button(
         gui::p2pX(50.f, vm), gui::p2pY(50.f, vm),
         gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
-		*m_Font, "Save/Load", gui::calcCharSize(vm)
+        *m_Font, "Save/Load", gui::calcCharSize(vm)
     );
 
     buttons["SETTINGS"] = new gui::Button(
         gui::p2pX(50.f, vm), gui::p2pY(60.f, vm),
         gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
-		*m_Font, "Settings", gui::calcCharSize(vm)
-	);
+        *m_Font, "Settings", gui::calcCharSize(vm)
+    );
 
     buttons["EXIT"] = new gui::Button(
         gui::p2pX(50.f, vm), gui::p2pY(70.f, vm),
         gui::p2pX(50.f, vm), gui::p2pY(40.f, vm),
-		*m_Font, "Exit", gui::calcCharSize(vm)
-	);
+        *m_Font, "Exit", gui::calcCharSize(vm)
+    );
 }
 
 void MainMenuState::reset_gui()
@@ -144,7 +140,7 @@ void MainMenuState::Update(float elapsedTime)
         {
             cursor_pos = buttons["NEW_GAME"]->get_pos();
             if(enter_pressed)
-            {
+            {                
                 do
                 {
                     gameMode().Pop();

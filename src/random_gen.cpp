@@ -1,6 +1,6 @@
 #include "random_gen.h"
 
-float Random::float_range(int start, int end)
+float Random::float_range(float start, float end)
 {
-    return (rand() % (end + 1 - start)) + start;
+    return float(rand() % ((int)end + 1 - (int)start)) + (int)start;
 }

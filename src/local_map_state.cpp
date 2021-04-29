@@ -3,23 +3,23 @@
 
 // forcing myself to write comments so ...
 
-LocalMapState::LocalMapState()
+LocalMapState::LocalMapState(GFX* gfx)
+    :
+    m_LocalMapTexture(ResourceManager::loadTexture(Textures::LocalBackground, "src/res/background/localmap_state.png")),
+    m_LocalMapSprite(*m_LocalMapTexture),
+    gfx_data(gfx),
+    vm(gfx_data->resolution)
 {
     // on enter stuff
-    m_LocalMapTexture = ResourceManager::loadTexture(Textures::LocalBackground, "src/res/background/localmap_state.png");
-    m_LocalMapSprite.setTexture(*m_LocalMapTexture);
-
-    sf::Vector2f targetSize(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
-    m_LocalMapSprite.setScale(targetSize.x / m_LocalMapSprite.getLocalBounds().width,
-                                targetSize.y / m_LocalMapSprite.getLocalBounds().height);
-
-    init_party_entities();
 }
 
 LocalMapState::~LocalMapState() { /* destructor lmao */ }
 
 void LocalMapState::OnEnter()
 {
+    m_LocalMapSprite.setScale(vm.width / m_LocalMapSprite.getLocalBounds().width,
+                                vm.height / m_LocalMapSprite.getLocalBounds().height);
+    init_party_entities();
 }
 
 void LocalMapState::OnExit() { /* on exit params */ }
@@ -42,49 +42,50 @@ void LocalMapState::Input(sf::Keyboard::Key key_code)
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
     {   
-        entities[PLAYER_ENTITY_INDEX].move(sf::Keyboard::Right);
+        entities[LocalMapState::PLAYER_INDEX].move(sf::Keyboard::Right);
     }
     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
     {
-        entities[PLAYER_ENTITY_INDEX].move(sf::Keyboard::Left);
+        entities[LocalMapState::PLAYER_INDEX].move(sf::Keyboard::Left);
     }
     else
     {
-        entities[PLAYER_ENTITY_INDEX].stop();
+        entities[LocalMapState::PLAYER_INDEX].stop();
     }
     
 }
 
 void LocalMapState::Update(float elapsedTime)   // spawn one enemy 
 {
-    if(entities[PLAYER_ENTITY_INDEX].m_Position.x >= m_LocalMapSprite.getGlobalBounds().width)
+    if(entities[LocalMapState::PLAYER_INDEX].get_position().x >= m_LocalMapSprite.getGlobalBounds().width)
     {
         gameMode().Push("battle");
     }
 
+    // @TODO: FIX ME
     for(auto& entity : entities)
     {
-        if((entities[PLAYER_ENTITY_INDEX].m_Position.x - entities[PLAYER_ENTITY_INDEX - 1].m_Position.x) > 40.f)
+        if((entities[LocalMapState::PLAYER_INDEX].m_Position.x - entities[LocalMapState::PLAYER_INDEX + 1].m_Position.x) > 40.f)
         {
-            entities[PLAYER_ENTITY_INDEX - 1].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24));
-            entities[PLAYER_ENTITY_INDEX - 2].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24));
+            entities[LocalMapState::PLAYER_INDEX + 1].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24));
+            entities[LocalMapState::PLAYER_INDEX + 2].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24));
 
-            entities[PLAYER_ENTITY_INDEX - 1].m_Position.x += 400.f * elapsedTime;
-            entities[PLAYER_ENTITY_INDEX - 2].m_Position.x += 400.f * elapsedTime;
+            entities[LocalMapState::PLAYER_INDEX + 1].m_Position.x += 400.f * elapsedTime;
+            entities[LocalMapState::PLAYER_INDEX + 2].m_Position.x += 400.f * elapsedTime;
         }
-        else if((entities[PLAYER_ENTITY_INDEX].m_Position.x - entities[PLAYER_ENTITY_INDEX - 2].m_Position.x) < -40.f)
+        else if((entities[LocalMapState::PLAYER_INDEX].m_Position.x - entities[LocalMapState::PLAYER_INDEX + 2].m_Position.x) < -40.f)
         {
-            entities[PLAYER_ENTITY_INDEX - 1].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
-            entities[PLAYER_ENTITY_INDEX - 2].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
+            entities[LocalMapState::PLAYER_INDEX + 1].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
+            entities[LocalMapState::PLAYER_INDEX + 2].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
 
-            entities[PLAYER_ENTITY_INDEX - 1].m_Position.x -= 400.f * elapsedTime;
-            entities[PLAYER_ENTITY_INDEX - 2].m_Position.x -= 400.f * elapsedTime;
+            entities[LocalMapState::PLAYER_INDEX + 1].m_Position.x -= 400.f * elapsedTime;
+            entities[LocalMapState::PLAYER_INDEX + 2].m_Position.x -= 400.f * elapsedTime;
         }
 
         entity.update(elapsedTime);
     }
 
-    if(entities[PLAYER_ENTITY_INDEX].m_Position.x <= 0.f)
+    if(entities[LocalMapState::PLAYER_INDEX].get_position().x <= 0.f)
     {
         gameMode().Pop();
     }
@@ -103,7 +104,7 @@ void LocalMapState::Render(sf::RenderWindow& window)
 
 void LocalMapState::init_party_entities()
 {
-    entities[PLAYER_ENTITY_INDEX - 2] = init_entity({32, 850}, "src/res/sprites/magic2.png");
-    entities[PLAYER_ENTITY_INDEX - 1] = init_entity({72, 850}, "src/res/sprites/magic1.png");
-    entities[PLAYER_ENTITY_INDEX - 0] = init_entity({112, 850}, "src/res/sprites/magic0.png");
+    entities[LocalMapState::PLAYER_INDEX + 0] = init_entity({gui::p2pX(2.f, vm), gui::p2pY(70.f, vm)}, "src/res/sprites/magic0.png", true);
+    entities[LocalMapState::PLAYER_INDEX + 1] = init_entity({gui::p2pX(4.f, vm), gui::p2pY(70.f, vm)}, "src/res/sprites/magic1.png", true);
+    entities[LocalMapState::PLAYER_INDEX + 2] = init_entity({gui::p2pX(6.f, vm), gui::p2pY(70.f, vm)}, "src/res/sprites/magic2.png", true);
 }

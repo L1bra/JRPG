@@ -8,7 +8,7 @@
 class Game
 {
 private:
-    void input();
+    void input(sf::Keyboard::Key key_code);
     void update(float dt);
     void draw();
 
@@ -22,8 +22,7 @@ public:
     void start();
 private:
     sf::RenderWindow* m_Window;
-    std::vector<sf::VideoMode> vms; // remove ?
-    GFX gfx;
+    GFX* gfx;
 
     MainMenuState* menu_state;
     WorldMapState* world_state;

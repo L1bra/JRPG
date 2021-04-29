@@ -1,79 +1,100 @@
 #include "battle_state.h"
 
-void free_state(void* ptr)
-{
-    delete ptr;
-}
-
-typedef struct 
-{
-    sf::Vector2f blue = {1300.f, 700.f};
-    sf::Vector2f red = {1250.f, 650.f};
-    sf::Vector2f yellow = {1200.f, 600.f};
-} party_coord_t;
-
-party_coord_t party_coord = {};
-
-// FIX WHAT ABOVE
-
-
-BattleState::BattleState()
+BattleState::BattleState(GFX* gfx)
     :
     m_BattleTexture(ResourceManager::loadTexture(Textures::BattleBackground, "src/res/background/battle_state.png")),
+    m_BattleSprite(*m_BattleTexture),
     battleMode(new StateMachine()),
-    battle_tick(new BattleTick(battleMode)),
-    battle_execute(new BattleExecute(battleMode))
+    gfx_data(gfx),
+    vm(gfx_data->resolution)
 {
-    m_BattleSprite.setTexture(*m_BattleTexture);
+    m_BattleSprite.setScale(vm.width / m_BattleSprite.getLocalBounds().width,
+                                vm.height / m_BattleSprite.getLocalBounds().height);
 
-    sf::Vector2f targetSize(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
-    m_BattleSprite.setScale(targetSize.x / m_BattleSprite.getLocalBounds().width,
-                                targetSize.y / m_BattleSprite.getLocalBounds().height);
-
-    battleMode->Add("tick", battle_tick);
-    battleMode->Add("execute", battle_execute);
-
-    init_party_entities();
-    init_enemy_entities();
+    BLUE_SPAWN_POSITION = {gui::p2pX(68.f, vm), gui::p2pY(65.f, vm)};
+    RED_SPAWN_POSITION = {gui::p2pX(65.f, vm), gui::p2pY(60.f, vm)};
+    YELLOW_SPAWN_POSITION = {gui::p2pX(63.f, vm), gui::p2pY(56.f, vm)};
 }
 
 BattleState::~BattleState() 
 {
-    delete battle_tick;
-    delete battle_execute;
-    delete battleMode;    
+
 }
 
 void BattleState::OnEnter()
 {
-    static_assert(sizeof(battleMode->size()), "[Battle state]: sm size is zero");
-    // battleMode->Push("tick");
+    battle_init();
 
+    battleMode->Push("tick");
 }
 
 void BattleState::OnExit()
 {
-    while(battleMode->size() != 0)
+    free_stuff();
+}
+
+void BattleState::battle_init()
+{
+    init_party_entities();
+    init_enemy_entities();
+
+    for(auto& e : entities)
     {
-        battleMode->Pop();
+        queue.enqueue(e);
+
+        /*
+            Default size of our custom Queue is 10, we have 3 entities on both sides 
+            so it is quite enough for us.
+
+            NOTE: change if entities in battle > 10
+        */
+
+        if(e.player_contolled)
+        {
+            PlayerAction* action = new PlayerAction(e, entities);
+            m_Actions.push_back(action);
+        }
+        else
+        {
+            AIAction* action = new AIAction(e, entities);
+            m_Actions.push_back(action);
+        }
     }
+
+    battleMode->Add("tick", new BattleTick(battleMode, m_Actions));
+    battleMode->Add("execute", new BattleExecute(battleMode, m_Actions));
+}
+
+void BattleState::free_stuff()
+{
+    // dequeue
+    std::size_t queue_size = queue.get_size();
+    for(std::size_t i = 0; i < queue_size; i++)
+    {
+        queue.dequeue();
+    }
+
+    // // actions
+    // for(auto& action : m_Actions)
+    // {
+    //     delete action;
+    // }
+
+    // // battle state machine
+    // delete battleMode;
 }
 
 void BattleState::Input(sf::Keyboard::Key key_code)
 {
-    // TODO: local pass input to local sm
     switch(key_code)
     {
         case sf::Keyboard::Escape:
         {    
             gameMode().Push("mainmenu");
         } break;
-
-        case sf::Keyboard::Enter:
-        {
-            battleMode->Push("tick");
-        } break;
     }
+
+    battleMode->Input(key_code);
 }
 
 
@@ -93,7 +114,6 @@ void BattleState::Update(float elapsedTime)
     battleMode->Update(elapsedTime);
 }
 
-
 void BattleState::Render(sf::RenderWindow& window)
 {
     window.draw(m_BattleSprite);
@@ -103,46 +123,46 @@ void BattleState::Render(sf::RenderWindow& window)
         entity.draw(window);
     }
 
-    // draw action
     battleMode->Render(window);
 }
 
 void BattleState::init_party_entities()
 {
-    entities[PLAYER_ENTITY_INDEX - 2] = init_entity(party_coord.blue, "src/res/sprites/magic0.png");
-    entities[PLAYER_ENTITY_INDEX - 2].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
+    // BLUE
+    entities[BattleState::PLAYER_INDEX + 0] = init_entity({gui::p2pX(70.f, vm), gui::p2pY(65.f, vm)}, "src/res/sprites/magic0.png", true);
+    entities[BattleState::PLAYER_INDEX + 0].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
     
-    entities[PLAYER_ENTITY_INDEX - 1] = init_entity(party_coord.red, "src/res/sprites/magic1.png");
-    entities[PLAYER_ENTITY_INDEX - 1].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
+    // RED
+    entities[BattleState::PLAYER_INDEX + 1] = init_entity({gui::p2pX(65.f, vm), gui::p2pY(60.f, vm)}, "src/res/sprites/magic1.png", true);
+    entities[BattleState::PLAYER_INDEX + 1].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
     
-    entities[PLAYER_ENTITY_INDEX - 0] = init_entity(party_coord.yellow, "src/res/sprites/magic2.png");
-    entities[PLAYER_ENTITY_INDEX - 0].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
+    // YELLOW
+    entities[BattleState::PLAYER_INDEX + 2] = init_entity({gui::p2pX(60.f, vm), gui::p2pY(55.f, vm)}, "src/res/sprites/magic2.png", true);
+    entities[BattleState::PLAYER_INDEX + 2].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24));
 }
 
 void BattleState::init_enemy_entities()
 {
-    entities[PLAYER_ENTITY_INDEX + 1] = init_entity({(party_coord.blue.y - 300), party_coord.blue.y}, "src/res/sprites/enemy.png");
-    entities[PLAYER_ENTITY_INDEX + 2] = init_entity({(party_coord.red.y - 200), party_coord.red.y}, "src/res/sprites/enemy.png");
-    entities[PLAYER_ENTITY_INDEX + 3] = init_entity({(party_coord.yellow.y - 100), party_coord.yellow.y}, "src/res/sprites/enemy.png");
+    entities[BattleState::ENEMY_OFFSET + 0] = init_entity({gui::p2pX(40.f, vm), gui::p2pY(55.f, vm)}, "src/res/sprites/enemy.png");
+    entities[BattleState::ENEMY_OFFSET + 1] = init_entity({gui::p2pX(35.f, vm), gui::p2pY(60.f, vm)}, "src/res/sprites/enemy.png");
+    entities[BattleState::ENEMY_OFFSET + 2] = init_entity({gui::p2pX(30.f, vm), gui::p2pY(65.f, vm)}, "src/res/sprites/enemy.png");
 }
 
-void BattleState::TimeRemaining() {}
-void BattleState::Decide() {}
-bool BattleState::isReady() { return true; } // ???
 
 
-// tick
 
-BattleTick::BattleTick(StateMachine* bm)
+//                 BATTLE TICK
+
+
+
+
+BattleTick::BattleTick(StateMachine* battleMode, std::vector<Action*> battle_actions)
     :
-    m_ActionFrameTexture(ResourceManager::loadTexture(Textures::ActionFrame, "src/res/background/action_frame.png")),
-    m_ActionFrameSprite(*m_ActionFrameTexture),
-    battleMode(battleMode)
+    battleMode(battleMode),
+    battle_actions(battle_actions),
+    top_action(battle_actions.back())
 {
-    // scale action frame and set default position
-    // TODO: replace numbers 
-    m_ActionFrameSprite.setScale({3.f, 3.f});
-    m_ActionFrameSprite.setPosition({1340.f, 600.f});
+
 }
 
 BattleTick::~BattleTick() {}
@@ -150,59 +170,43 @@ BattleTick::~BattleTick() {}
 void BattleTick::OnEnter() {}
 void BattleTick::OnExit() {}
 
-void BattleTick::TimeRemaining() {}
-void BattleTick::Decide() {}
-bool BattleTick::isReady() { return true; } // ???
-
 
 void BattleTick::Input(sf::Keyboard::Key key_code)
 {
-    // move cursor
-    switch(key_code)
-    {
-        case sf::Keyboard::Up:
-        {
-            
-        } break;
-        
-        case sf::Keyboard::Down:
-        {
-            
-        } break;
-
-        case sf::Keyboard::Left:
-        {
-            
-        } break;
-
-        case sf::Keyboard::Right:
-        {
-            
-        } break;
-
-        case sf::Keyboard::Escape:
-        {
-            battleMode->Pop();
-        } break;
-    }
+    if(top_action == nullptr)
+        printf("top action == nullptr\n");
+    top_action->Input(key_code);
 }
 
 void BattleTick::Update(float elapsedTime)
 {
-    //
+    // for(auto& action : battle_actions)
+    // {
+    //     action->Update(elapsedTime);
+    // }
+
+    top_action->Update(elapsedTime);
+
+    // skip all enemies action (FIX THIS)
+    if(top_action->isReady())
+    {
+        // TODO:
+        delete battle_actions.back();
+        battle_actions.pop_back();
+        // battleMode->Push("execute"); // pass top action?
+        top_action = battle_actions.back();
+    }
 }
 
 void BattleTick::Render(sf::RenderWindow& window)
 {
-    window.draw(m_ActionFrameSprite);
+    top_action->Render(window);
 }
 
 
 // execute 
 
-BattleExecute::BattleExecute(StateMachine* bm)
-    :
-    battleMode(bm)
+BattleExecute::BattleExecute(StateMachine* battleMode, std::vector<Action*> battle_actions)
 {
     //
 }
@@ -219,10 +223,6 @@ void BattleExecute::OnEnter()
 
 void BattleExecute::OnExit() {}
 
-void BattleExecute::TimeRemaining() {}
-void BattleExecute::Decide() {}
-bool BattleExecute::isReady() { return true; } // ???
-
 
 void BattleExecute::Input(sf::Keyboard::Key key_code)
 {
@@ -235,6 +235,77 @@ void BattleExecute::Update(float elapsedTime)
 }
 
 void BattleExecute::Render(sf::RenderWindow& window)
+{
+    //
+}
+
+
+//  battle menu state
+
+BattleMenuState::BattleMenuState()
+{
+    //
+}
+
+BattleMenuState::~BattleMenuState()
+{
+    //
+}
+
+void BattleMenuState::OnEnter()
+{
+    //
+}
+
+void BattleMenuState::OnExit() {}
+
+
+void BattleMenuState::Input(sf::Keyboard::Key key_code)
+{
+    //
+}
+
+void BattleMenuState::Update(float elapsedTime)
+{
+    //
+}
+
+void BattleMenuState::Render(sf::RenderWindow& window)
+{
+    //
+}
+
+// battle animation state
+
+BattleAnimationState::BattleAnimationState()
+{
+    //
+}
+
+BattleAnimationState::~BattleAnimationState()
+{
+    //
+}
+
+void BattleAnimationState::OnEnter()
+{
+    //
+}
+
+void BattleAnimationState::OnExit() {}
+
+
+void BattleAnimationState::Input(sf::Keyboard::Key key_code)
+{
+    //
+}
+
+void BattleAnimationState::Update(float elapsedTime)
+{
+    //
+}
+
+void BattleAnimationState::Render(sf::RenderWindow& window)
 {
     //
 }

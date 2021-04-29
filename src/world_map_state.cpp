@@ -1,14 +1,13 @@
 #include "world_map_state.h"
 
-WorldMapState::WorldMapState()
+
+WorldMapState::WorldMapState(GFX* gfx)
+    :
+    m_WorldMapTexture(ResourceManager::loadTexture(Textures::WorldBackground, "src/res/background/background0.png")),
+    m_WorldMapSprite(*m_WorldMapTexture),
+    gfx_data(gfx),
+    vm(gfx_data->resolution)
 {
-    m_WorldMapTexture = ResourceManager::loadTexture(Textures::WorldBackground, "src/res/background/background0.png");
-    m_WorldMapSprite.setTexture(*m_WorldMapTexture);
-
-    sf::Vector2f targetSize(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
-    m_WorldMapSprite.setScale(targetSize.x / m_WorldMapSprite.getLocalBounds().width,
-                                targetSize.y / m_WorldMapSprite.getLocalBounds().height);
-
 #if DEBUG
     int s = *(&entities + 1) - entities;
     printf("size of entities: %d\n", s);
@@ -18,19 +17,17 @@ WorldMapState::WorldMapState()
 WorldMapState::~WorldMapState() {}
 
 
-
 void WorldMapState::OnEnter()
 {
+    m_WorldMapSprite.setScale(vm.width / m_WorldMapSprite.getLocalBounds().width,
+                                vm.height / m_WorldMapSprite.getLocalBounds().height);
+    
     init_player_entity();
     spawn_enemy();
 }
 
 
 void WorldMapState::OnExit() { /* on exit */ }
-
-void WorldMapState::TimeRemaining() {}
-void WorldMapState::Decide() {}
-bool WorldMapState::isReady() { return true; } // ???
 
 
 void WorldMapState::Input(sf::Keyboard::Key key_code)   // TODO: implement paravozik-style
@@ -46,30 +43,30 @@ void WorldMapState::Input(sf::Keyboard::Key key_code)   // TODO: implement parav
     //  real time input for smooth movement
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
     {   
-        entities[PLAYER_ENTITY_INDEX].move(sf::Keyboard::Right);
+        entities[WorldMapState::PLAYER_INDEX].move(sf::Keyboard::Right);
     }
     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
     {
-        entities[PLAYER_ENTITY_INDEX].move(sf::Keyboard::Left);
+        entities[WorldMapState::PLAYER_INDEX].move(sf::Keyboard::Left);
     }
     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
     {
-        entities[PLAYER_ENTITY_INDEX].move(sf::Keyboard::Up);
+        entities[WorldMapState::PLAYER_INDEX].move(sf::Keyboard::Up);
     }
     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
     {
-        entities[PLAYER_ENTITY_INDEX].move(sf::Keyboard::Down);
+        entities[WorldMapState::PLAYER_INDEX].move(sf::Keyboard::Down);
     }
     else
     {
-        entities[PLAYER_ENTITY_INDEX].stop();
+        entities[WorldMapState::PLAYER_INDEX].stop();
     }
 }
 
 
 void WorldMapState::Update(float elapsedTime)
 {    
-    if(entities[PLAYER_ENTITY_INDEX].m_Position.x >= m_WorldMapSprite.getGlobalBounds().width)
+    if(entities[WorldMapState::PLAYER_INDEX].m_Position.x >= m_WorldMapSprite.getGlobalBounds().width)
     {
         gameMode().Push("localmap");
     }
@@ -82,7 +79,7 @@ void WorldMapState::Update(float elapsedTime)
 
     for(auto& enemy : enemies)  // TODO: FIX ME !
     {
-        if(entities[PLAYER_ENTITY_INDEX].m_Sprite.getGlobalBounds().intersects(enemy.m_Sprite.getGlobalBounds()))
+        if(entities[WorldMapState::PLAYER_INDEX].m_Sprite.getGlobalBounds().intersects(enemy.m_Sprite.getGlobalBounds()))
         {
             gameMode().Push("battle");
         }
@@ -110,7 +107,7 @@ void WorldMapState::Render(sf::RenderWindow& window)
 
 void WorldMapState::init_player_entity()
 {
-    entities[PLAYER_ENTITY_INDEX] = init_entity(PLAYER_SPAWN_POSITION, "src/res/sprites/magic0.png");
+    entities[WorldMapState::PLAYER_INDEX] = init_entity({gui::p2pX(2.f, vm), gui::p2pY(70.f, vm)}, "src/res/sprites/magic0.png", true);
 }
 
 
@@ -118,27 +115,27 @@ void WorldMapState::spawn_enemy()
 {
     if(enemies.size() < 5)
     {
-        for(int i = 0; i < (ENEMY_ENTITY_OFFSET + 2); i++)
+        sf::Vector2f player_position = entities[WorldMapState::PLAYER_INDEX].get_position();
+        sf::Vector2f enemy_position(0.f, 0.f);
+        for(int i = 0; i < (WorldMapState::MAX_ENTITIES - 1); i++)
         {
-            sf::Vector2f position(0, 0);
             do
             {
-                // TODO: change '1920' and '1080' to current vmode
-                position.x = Random::float_range(0, 1920);
-                position.y = Random::float_range(0, 1080);
-            } while (position == PLAYER_SPAWN_POSITION);
+                enemy_position.x = Random::float_range(0, vm.width);
+                enemy_position.y = Random::float_range(0, vm.height);
+            } while (enemy_position == player_position);
             
             float enemy_spawn_dir = Random::float_range(0, 3);
 
-            Entity enemy = init_entity(position, "src/res/sprites/enemy.png");
+            Entity enemy = init_entity(enemy_position, "src/res/sprites/enemy.png");
             enemies.push_back(std::move(enemy));
             
             switch((int)enemy_spawn_dir)
             {
-                case 0:  entities[ENEMY_ENTITY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(0, 21, 24, 21)); break;
-                case 1:  entities[ENEMY_ENTITY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24)); break;
-                case 2:  entities[ENEMY_ENTITY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24)); break;
-                case 3:  entities[ENEMY_ENTITY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(24, 21, 24, 21)); break;
+                case 0:  entities[WorldMapState::ENEMY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(0, 21, 24, 21)); break;
+                case 1:  entities[WorldMapState::ENEMY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(0, 0, 24, 24)); break;
+                case 2:  entities[WorldMapState::ENEMY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(24, 0, 24, 24)); break;
+                case 3:  entities[WorldMapState::ENEMY_OFFSET + i].m_Sprite.setTextureRect(sf::IntRect(24, 21, 24, 21)); break;
             }
         }
     }

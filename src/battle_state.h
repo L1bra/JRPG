@@ -4,92 +4,132 @@
 #include "state_machine.h"
 #include "entity.h"
 #include "action.h"
+#include "queue.h"
+#include "gui.h"
+#include "gfx.h"
+
+#include <array>
+
+
+enum class Entity_battle_state : uint8_t
+{
+    WAIT = 0,
+    COMMAND,
+    ACTION
+};
+
 
 class BattleState : public State
 {
 private:
-    void init_party_entities();
-    void init_enemy_entities();
+    // const
+    enum 
+    { 
+        PLAYER_INDEX = 0,
+        ENEMY_OFFSET = 3,
+        MAX_ENTITY_INDEX = 5,
+        MAX_ENTITY = 6
+    };
 
-    static bool sort_by_time(State& a, State& b);
-public:
-    BattleState();
-    ~BattleState();
+    sf::Vector2f BLUE_SPAWN_POSITION;
+    sf::Vector2f RED_SPAWN_POSITION;
+    sf::Vector2f YELLOW_SPAWN_POSITION;
 
-    void Input(sf::Keyboard::Key key_code);
-    void Update(float elapsedTime);
-    void Render(sf::RenderWindow& window);
-    void OnEnter();
-    void OnExit();
-
-    void action_tick();
-    void action_execute();
-
-    // remove
-    void TimeRemaining();
-    void Decide();
-    bool isReady();
-private:
+    // other
     std::shared_ptr<sf::Texture> m_BattleTexture;
     sf::Sprite m_BattleSprite;
     
-    Entity entities[MAX_ENTITIES];
-    std::vector<State*> m_Actions;
+    std::array<Entity, MAX_ENTITY> entities;
+    std::vector<Action*> m_Actions;
+    
+    ds::Queue<Entity> queue;
 
+    GFX* gfx_data;
+    sf::VideoMode& vm;
     StateMachine* battleMode;
-    State* battle_tick;
-    State* battle_execute;
+private:
+    void init_party_entities();
+    void init_enemy_entities();
+
+    void battle_init();
+    void free_stuff();
+
+    // static bool sort_by_time(State& a, State& b);
+public:
+    BattleState(GFX* gfx);
+    ~BattleState();
+
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
 };
 
 
 class BattleTick : public State
 {
-public:
-    BattleTick(StateMachine* bm);
-    ~BattleTick();
-
-    void Input(sf::Keyboard::Key key_code);
-    void Update(float elapsedTime);
-    void Render(sf::RenderWindow& window);
-    void OnEnter();
-    void OnExit();
-
-    // remove
-    void TimeRemaining();
-    void Decide();
-    bool isReady();
-
 private:
-    std::shared_ptr<sf::Texture> m_ActionFrameTexture;
-    sf::Sprite m_ActionFrameSprite;
-
+    Action* top_action;
+    std::vector<Action*> battle_actions;
     StateMachine* battleMode;
 public:
+    BattleTick(StateMachine* battleMode, std::vector<Action*> battle_actions);
+    ~BattleTick();
 
-private:
-    // fields
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
 };
 
 
 class BattleExecute : public State
 {
 public:
-    BattleExecute(StateMachine* bm);
+    BattleExecute(StateMachine* battleMode, std::vector<Action*> battle_actions);
     ~BattleExecute();
 
-    void Input(sf::Keyboard::Key key_code);
-    void Update(float elapsedTime);
-    void Render(sf::RenderWindow& window);
-    void OnEnter();
-    void OnExit();
-
-    // remove
-    void TimeRemaining();
-    void Decide();
-    bool isReady();
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
 private:
-    StateMachine* battleMode;
+    //
 };
 
+
+class BattleMenuState : public State
+{
+private:
+    //
+public:
+    BattleMenuState();
+    ~BattleMenuState();
+
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
+};
+
+
+class BattleAnimationState : public State
+{
+private:
+    //
+public:
+    BattleAnimationState();
+    ~BattleAnimationState();
+
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
+};
 
 #endif  // BATTLE_STATE_H_

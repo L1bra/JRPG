@@ -6,8 +6,7 @@
 class Random
 {
 public:
-
-    static float float_range(int start, int end);
+    static float float_range(float start, float end);
 };
 
 #endif // RANDOM_GEN_H_

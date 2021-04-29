@@ -3,32 +3,33 @@
 
 Game::Game()
     :
-    menu_state(new MainMenuState()),
-    world_state(new WorldMapState()),
-    local_state(new LocalMapState()),
-    battle_state(new BattleState()),
-    vms(sf::VideoMode::getFullscreenModes())
+    gfx(new GFX()),
+    menu_state(new MainMenuState(gfx)),
+    world_state(new WorldMapState(gfx)),
+    local_state(new LocalMapState(gfx)),
+    battle_state(new BattleState(gfx))
 {
     init_settings();
 
-    if(gfx.fullscreen)
-        m_Window = new sf::RenderWindow(gfx.resolution, gfx.title, sf::Style::Fullscreen);
+    if(gfx->fullscreen)
+        m_Window = new sf::RenderWindow(gfx->resolution, gfx->title, sf::Style::Fullscreen);
     else
-        m_Window = new sf::RenderWindow(gfx.resolution, gfx.title, sf::Style::Titlebar | sf::Style::Close);
+        m_Window = new sf::RenderWindow(gfx->resolution, gfx->title, sf::Style::Default);
     
-    m_Window->setFramerateLimit(gfx.framerate);
-    m_Window->setVerticalSyncEnabled(gfx.vsync);
+    m_Window->setFramerateLimit(gfx->framerate);
+    m_Window->setVerticalSyncEnabled(gfx->vsync);
 }
 
 Game::~Game()
 {
     free_states();
+    delete gfx;
     delete m_Window;
 }
 
 void Game::init_settings()
 {
-    gfx.load("src/cfg/gfx.ini");
+    gfx->load("src/cfg/gfx.ini");
 }
 
 void Game::free_states()
@@ -62,9 +63,14 @@ void Game::start()
                     m_Window->close();
                 } break;
 
-                case sf::Event::KeyPressed: //  Main menu and parts where single input required
+                case sf::Event::KeyPressed:
                 {
-                    gameMode().Input(event.key.code);
+                    input(event.key.code);
+                } break;
+
+                case sf::Event::KeyReleased:
+                {
+                    input(sf::Keyboard::Unknown);
                 } break;
 
                 default: break;
@@ -74,15 +80,14 @@ void Game::start()
         sf::Time dt = clock.restart();
         float dt_sec = dt.asSeconds();
 
-        input();
         update(dt_sec);
         draw();
     }
 }
 
-void Game::input()
+void Game::input(sf::Keyboard::Key key_code)
 {
-    gameMode().Input(sf::Keyboard::Unknown); // idk what im doing
+    gameMode().Input(key_code);
 }
 
 void Game::update(float dt)

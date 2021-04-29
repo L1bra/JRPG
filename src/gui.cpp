@@ -1,5 +1,4 @@
 #include "gui.h"
-#include <iostream>
 
 const float gui::p2pX(const float p, const sf::VideoMode& vm)
 {

@@ -7,17 +7,18 @@
 
 #include <SFML/Graphics.hpp>
 
+class Action;
 
 class State
 {
 public:
     virtual ~State() {};
 
-    virtual void Input(sf::Keyboard::Key key_code);
-    virtual void Update(float elapsedTime);
-    virtual void Render(sf::RenderWindow& window);
-    virtual void OnEnter();
-    virtual void OnExit();
+    virtual void Input(sf::Keyboard::Key key_code) = 0;
+    virtual void Update(float elapsedTime) = 0;
+    virtual void Render(sf::RenderWindow& window) = 0;
+    virtual void OnEnter() = 0;
+    virtual void OnExit() = 0;
 };
 
 
@@ -27,37 +28,39 @@ public:
     EmptyState();
     ~EmptyState();
 
-    void Input(sf::Keyboard::Key key_code);
-    void Update(float elapsedTime);
-    void Render(sf::RenderWindow& window);
-    void OnEnter();
-    void OnExit();
+    void Input(sf::Keyboard::Key key_code) override;
+    void Update(float elapsedTime) override;
+    void Render(sf::RenderWindow& window) override;
+    void OnEnter() override;
+    void OnExit() override;
 };
 
-
-class StateStack
+class StateMachine final
 {
 private:
     std::map<std::string, State*> m_States;
     std::vector<State*> m_Stack;
     State* state;
     State* top;
+private:
+    void sm_free();
 public:
-    StateStack();
-    ~StateStack();
+    StateMachine();
+    ~StateMachine();
 
-    void Add(std::string, State* state);
     void Input(sf::Keyboard::Key key_code);
     void Update(float elapsedTime);
     void Render(sf::RenderWindow& window);
 
-    void Push(std::string name);
+    void Add(std::string, State* state);
+    void Push(const std::string& name);
     void Pop();
 
     bool isEmpty();
     std::size_t size();
 };
 
-StateStack& gameMode();
+
+StateMachine& gameMode();
 
 #endif  // STATE_MACHINE_H_
