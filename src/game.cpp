@@ -63,31 +63,23 @@ void Game::start()
                     m_Window->close();
                 } break;
 
-                case sf::Event::KeyPressed:
-                {
-                    input(event.key.code);
-                } break;
-
-                case sf::Event::KeyReleased:
-                {
-                    input(sf::Keyboard::Unknown);
-                } break;
-
                 default: break;
             }
         }
 
+
         sf::Time dt = clock.restart();
         float dt_sec = dt.asSeconds();
 
+        input();
         update(dt_sec);
         draw();
     }
 }
 
-void Game::input(sf::Keyboard::Key key_code)
+void Game::input()
 {
-    gameMode().Input(key_code);
+    gameMode().Input();
 }
 
 void Game::update(float dt)

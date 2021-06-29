@@ -1,20 +1,5 @@
 #include "gui.h"
 
-const float gui::p2pX(const float p, const sf::VideoMode& vm)
-{
-    return std::floor(static_cast<float>(vm.width) * (p/ 100.f));
-}
-
-const float gui::p2pY(const float p, const sf::VideoMode& vm)
-{
-    return std::floor(static_cast<float>(vm.height) * (p/ 100.f));
-}
-
-const unsigned gui::calcCharSize(const sf::VideoMode& vm, const unsigned modifier)
-{
-    return static_cast<unsigned>((vm.width + vm.height) / modifier);
-}
-
 // TODO: rename variables
 gui::Button::Button(float x, float y, float width, float height,
                 sf::Font font, std::string str, unsigned character_size,
@@ -29,12 +14,12 @@ gui::Button::Button(float x, float y, float width, float height,
         :
         x(x),
         y(y),
-        id(id),
-        font(font),
         width(width),
         height(height),
-        button_state(BTN_IDLE),
+        id(id),
         button_pos(this->width, this->height),
+        button_state(BTN_IDLE),
+        font(font),
         textIdleColor(text_idle_color),
         textHoverColor(text_hover_color),
         textActiveColor(text_active_color),
@@ -64,7 +49,7 @@ gui::Button::Button(float x, float y, float width, float height,
 
 gui::Button::~Button() {}
 
-const bool gui::Button::is_pressed() const
+bool gui::Button::is_pressed() const
 {
     if(button_state == BTN_ACTIVE)
         return true;
@@ -104,6 +89,7 @@ BTN_STATE gui::Button::get_state() const
 
 void gui::Button::update(const sf::Vector2f& cursor_pos)
 {
+    input.update();
     button_state = BTN_IDLE;
 
     if (cursor_pos == this->shape.getPosition())
@@ -111,6 +97,7 @@ void gui::Button::update(const sf::Vector2f& cursor_pos)
         button_state = BTN_HOVER;
 
         // pressed
+        // replace with new input system
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
         {
             button_state = BTN_ACTIVE;

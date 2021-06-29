@@ -1,6 +1,8 @@
 #ifndef GUI_H_
 #define GUI_H_
 
+#include "input.h"
+
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
@@ -13,11 +15,25 @@ typedef enum
 
 namespace gui
 {
+    // there was a const here its gone now
+    template<typename T>
+    float p2pX(const float p, const T& vm)
+    {
+        return std::floor(static_cast<float>(vm.width) * (p / 100.f));
+    }
 
-    const float p2pX(const float p, const sf::VideoMode& vm);
-    const float p2pY(const float p, const sf::VideoMode& vm);
-    const unsigned calcCharSize(const sf::VideoMode& vm, const unsigned modifier = 60);
-    
+    template<typename T>
+    float p2pY(const float p, const T& vm)
+    {
+        return std::floor(static_cast<float>(vm.height) * (p / 100.f));
+    }
+
+    template<typename T>
+    unsigned calcCharSize(const T& vm, const unsigned modifier = 60)
+    {
+        return static_cast<unsigned>((vm.width + vm.height) / modifier);
+    }
+
     class Button
     {
     private:
@@ -26,10 +42,13 @@ namespace gui
 
         float width;
         float height;
+
+        short unsigned id;
+        
+        InputHandler input;
         
         sf::Vector2f button_pos;
         BTN_STATE button_state;
-        short unsigned id;
 
         sf::RectangleShape shape;
         sf::Font font;
@@ -62,7 +81,7 @@ namespace gui
                 );
         ~Button();
 
-        const bool is_pressed() const;
+        bool is_pressed() const;
 
         const std::string get_text() const;
         const short unsigned& get_id() const;

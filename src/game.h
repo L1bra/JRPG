@@ -8,7 +8,7 @@
 class Game
 {
 private:
-    void input(sf::Keyboard::Key key_code);
+    void input();
     void update(float dt);
     void draw();
 

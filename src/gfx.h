@@ -11,7 +11,7 @@
 
 enum class Options
 {
-    unknown = 0,
+    unknown = -1,
     title,
     resolution_height,
     resolution_width,

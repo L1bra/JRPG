@@ -4,6 +4,7 @@
 #include "state_machine.h"
 #include "gui.h"
 #include "gfx.h"
+#include "input.h"
 
 const uint8_t MAIN_MENU_ITEMS = 4;
 
@@ -12,12 +13,12 @@ class MainMenuState : public State
 private:
     enum BTN_MENU { BTN_MENU_PLAY = 0, BTN_MENU_SAVE, BTN_MENU_SETTINGS, BTN_MENU_EXIT };
 
-    std::shared_ptr<sf::Texture> m_MainMenuTexture;
+    sf::RectangleShape m_Background;
     std::shared_ptr<sf::Font> m_Font;
-    sf::Sprite m_MainMenuSprite;
 
     GFX* gfx_data;
     sf::VideoMode& vm;
+    InputHandler input;
 
     std::map<std::string, gui::Button*> buttons;
     
@@ -38,7 +39,7 @@ public:
     MainMenuState(GFX* gfx);
     ~MainMenuState();
 
-    void Input(sf::Keyboard::Key key_code) override;
+    void Input() override;
     void Update(float elapsedTime) override;
     void Render(sf::RenderWindow& window) override;
     void OnEnter() override;

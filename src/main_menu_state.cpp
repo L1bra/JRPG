@@ -2,15 +2,13 @@
 
 MainMenuState::MainMenuState(GFX* gfx)
     :
-    m_MainMenuTexture(ResourceManager::loadTexture(Textures::MenuBackground, "src/res/background/menu_resume_state.png")),
-    m_Font(ResourceManager::loadFont(Fonts::Arial, "src/res/fonts/PixellettersFull.ttf")),
-    m_MainMenuSprite(*m_MainMenuTexture),
-    cursor_pos({0.f, 0.f}),
-    enter_pressed(false),
-    is_closing(false),
-    cursor_index(0),
+    m_Font(ResourceManager::loadFont(Fonts::Pixel, "src/res/fonts/PixellettersFull.ttf")),
     gfx_data(gfx),
-    vm(gfx_data->resolution)
+    vm(gfx_data->resolution),
+    cursor_pos({0.f, 0.f}),
+    cursor_index(0),
+    enter_pressed(false),
+    is_closing(false)
 {
 }
 
@@ -33,8 +31,10 @@ void MainMenuState::OnExit()
 // @BUG: scalable window
 void MainMenuState::init_gui()
 {    
-    m_MainMenuSprite.setScale(vm.width / m_MainMenuSprite.getLocalBounds().width, 
-                            vm.height / m_MainMenuSprite.getLocalBounds().height);
+    m_Background.setSize({320.f, 180.f});
+    m_Background.setScale(vm.width / m_Background.getLocalBounds().width, 
+                    vm.height / m_Background.getLocalBounds().height);
+    m_Background.setFillColor(sf::Color::Black);
 
     /*
         Resume (opt)
@@ -92,48 +92,22 @@ void MainMenuState::render_buttons(sf::RenderWindow& window)
 }
 
 
-void MainMenuState::Input(sf::Keyboard::Key key_code)
+void MainMenuState::Input()
 {
-    switch(key_code)
+    Command* command = input.handle_input();
+    if(command)
     {
-        case sf::Keyboard::Escape:
-        {
-            if(gameMode().size() >= 2)
-                gameMode().Pop();   // to the last state
-        } break;
-
-        case sf::Keyboard::Up:
-        {
-            if(cursor_index >= 0)
-                cursor_index = (cursor_index - 1) % MAIN_MENU_ITEMS;
-        } break;
-        
-        case sf::Keyboard::Down:
-        {
-            if(cursor_index <= MAIN_MENU_ITEMS)
-                cursor_index = (cursor_index + 1) % MAIN_MENU_ITEMS;
-        } break;
-        
-        case sf::Keyboard::Left:
-        {
-            //
-        } break;
-
-        case sf::Keyboard::Right:
-        {
-            //
-        } break;
-
-        case sf::Keyboard::Enter:
-        {
-            enter_pressed = true;
-        } break;
+        command->execute(cursor_index);
     }
 }
 
 // TODO: update buttons then update state
 void MainMenuState::Update(float elapsedTime)
 {
+    input.update();
+
+    (void)elapsedTime;
+    
     switch(cursor_index)
     {
         case BTN_MENU_PLAY:
@@ -194,7 +168,7 @@ void MainMenuState::Render(sf::RenderWindow& window)
     if(is_closing)
         window.close();
         
-    window.draw(m_MainMenuSprite);
+    window.draw(m_Background);
     render_buttons(window);
 }
 
