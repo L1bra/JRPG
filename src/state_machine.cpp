@@ -3,9 +3,9 @@
 
 EmptyState::EmptyState() {}
 EmptyState::~EmptyState() {}
-void EmptyState::Input(sf::Keyboard::Key key_code) {}
-void EmptyState::Update(float elapsedTime) {}
-void EmptyState::Render(sf::RenderWindow& window) {}
+void EmptyState::Input() {}
+void EmptyState::Update(float elapsedTime) { (void)elapsedTime; }
+void EmptyState::Render(sf::RenderWindow& window) { (void)window; }
 void EmptyState::OnEnter() {}
 void EmptyState::OnExit() {}
 
@@ -22,12 +22,12 @@ StateMachine::~StateMachine()
 {
 }
 
-void StateMachine::Input(sf::Keyboard::Key key_code)
+void StateMachine::Input()
 {
     if(m_Stack.size())
     {
         top = m_Stack.back();
-        top->Input(key_code);
+        top->Input();
     }
 }
 
@@ -56,7 +56,7 @@ void StateMachine::Push(const std::string& name)
 
     m_Stack.push_back(state);
     // TODO: logger
-    std::cout << name << " pushed to stack." << std::endl;
+    std::cout << name << " pushed to stack.\n";
     state->OnEnter();
 }
 
@@ -72,7 +72,7 @@ void StateMachine::Pop()
 
 bool StateMachine::isEmpty()
 {
-    return m_Stack.size() ? 1 : 0;
+    return m_Stack.size() ? true : false;
 }
 
 std::size_t StateMachine::size()
