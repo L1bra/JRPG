@@ -4,32 +4,18 @@
 Game::Game()
     :
     gfx(new GFX()),
+    loading_state(new ScreenSplash(gfx)),
     menu_state(new MainMenuState(gfx)),
     world_state(new WorldMapState(gfx)),
     local_state(new LocalMapState(gfx)),
     battle_state(new BattleState(gfx))
 {
-    init_settings();
-
-    if(gfx->fullscreen)
-        m_Window = new sf::RenderWindow(gfx->resolution, gfx->title, sf::Style::Fullscreen);
-    else
-        m_Window = new sf::RenderWindow(gfx->resolution, gfx->title, sf::Style::Default);
-    
-    m_Window->setFramerateLimit(gfx->framerate);
-    m_Window->setVerticalSyncEnabled(gfx->vsync);
 }
 
 Game::~Game()
 {
     free_states();
     delete gfx;
-    delete m_Window;
-}
-
-void Game::init_settings()
-{
-    gfx->load("src/cfg/gfx.ini");
 }
 
 void Game::free_states()
@@ -40,34 +26,27 @@ void Game::free_states()
     delete battle_state;
 }
 
-void Game::start()
+void Game::init()
 {
-    sf::Clock clock;
+    init_settings();
 
+    gameMode().Add("loading", loading_state);
     gameMode().Add("mainmenu", menu_state);
     gameMode().Add("worldmap", world_state);
     gameMode().Add("localmap", local_state);
     gameMode().Add("battle", battle_state);
-    
-    gameMode().Push("mainmenu");
 
-    while(m_Window->isOpen())
+    start();
+}
+
+void Game::start()
+{
+    sf::Clock clock;
+
+    gameMode().Push("loading");
+
+    while(is_running())
     {
-        sf::Event event;
-        while(m_Window->pollEvent(event))
-        {
-            switch(event.type)
-            {
-                case sf::Event::Closed:
-                {
-                    m_Window->close();
-                } break;
-
-                default: break;
-            }
-        }
-
-
         sf::Time dt = clock.restart();
         float dt_sec = dt.asSeconds();
 
@@ -84,12 +63,19 @@ void Game::input()
 
 void Game::update(float dt)
 {
+    window.update();
     gameMode().Update(dt);
 }
 
 void Game::draw()
-{   
-    m_Window->clear(sf::Color::White);
-    gameMode().Render(*m_Window);
-    m_Window->display();
+{
+    // TODO: REMOVE
+    window.begin_draw(sf::Color::White);
+    gameMode().Render(window);
+    window.end_draw();
+}
+
+bool Game::is_running() const
+{
+    return window.is_open();
 }
