@@ -5,8 +5,7 @@ Window::Window()
     :
     gfx(new GFX())
 {
-    // TODO: if load is failed
-    gfx->load("src/cfg/gfx.init");
+    gfx->load("src/cfg/gfx.ini");
 
     if(gfx->fullscreen)
         window = new sf::RenderWindow(gfx->resolution, gfx->title, sf::Style::Fullscreen);
