@@ -21,16 +21,16 @@ private:
 
     GFX* gfx_data;
     const sf::VideoMode& vm;
-    Entity entities[MAX_ENTITIES];
+    // Entity entities[MAX_ENTITIES];
 private:
     void init_party_entities();
 public:
     LocalMapState(GFX* gfx);
     ~LocalMapState();
 
-    void Input(sf::Keyboard::Key key_code) override;
+    void Input() override;
     void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(Window& window) override;
     void OnEnter() override;
     void OnExit() override;
 };

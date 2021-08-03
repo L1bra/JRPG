@@ -5,7 +5,6 @@
 #include "resource_manager.h"
 
 #include <map>
-#include <SFML/Graphics.hpp>
 
 
 class EmptyState : public State
@@ -16,7 +15,7 @@ public:
 
     void Input() override;
     void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(Window& window) override;
     void OnEnter() override;
     void OnExit() override;
 };
@@ -34,7 +33,7 @@ public:
 
     void Input();
     void Update(float elapsedTime);
-    void Render(sf::RenderWindow& window);
+    void Render(Window& window);
 
     void Add(std::string, State* state);
     void Push(const std::string& name);

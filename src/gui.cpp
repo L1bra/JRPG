@@ -56,7 +56,7 @@ bool gui::Button::is_pressed() const
     return false;
 }
 
-const std::string gui::Button::get_text() const
+const std::string& gui::Button::get_text() const
 {
     return this->text.getString();
 }
@@ -136,7 +136,7 @@ void gui::Button::update(const sf::Vector2f& cursor_pos)
     }
 }
 
-void gui::Button::render(sf::RenderTarget& window)
+void gui::Button::render(Window& window)
 {
     window.draw(shape);
     window.draw(text);

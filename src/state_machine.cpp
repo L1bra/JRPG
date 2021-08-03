@@ -5,7 +5,7 @@ EmptyState::EmptyState() {}
 EmptyState::~EmptyState() {}
 void EmptyState::Input() {}
 void EmptyState::Update(float elapsedTime) { (void)elapsedTime; }
-void EmptyState::Render(sf::RenderWindow& window) { (void)window; }
+void EmptyState::Render(Window& window) { (void)window; }
 void EmptyState::OnEnter() {}
 void EmptyState::OnExit() {}
 
@@ -40,7 +40,7 @@ void StateMachine::Update(float elapsedTime)
     }
 }
 
-void StateMachine::Render(sf::RenderWindow& window)
+void StateMachine::Render(Window& window)
 {
     if(m_Stack.size())
     {

@@ -1,6 +1,7 @@
 #ifndef STATES_H_
 #define STATES_H_
 
+#include "screen_splash_state.h"
 #include "main_menu_state.h"
 #include "world_map_state.h"
 #include "local_map_state.h"

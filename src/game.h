@@ -25,9 +25,7 @@ private:
     void start();
     bool is_running() const;
 
-    void init_settings();
     void free_states();
-
 public:
     Game();
     ~Game();

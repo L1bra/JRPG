@@ -27,7 +27,13 @@ enum Textures
     // menu cursor  // clean up
     MenuPlay,
     MenuSettings,
-    MenuExit
+    MenuExit,
+
+    // screen splash
+    LoadingScreen,
+
+    // components
+    Sprite
 };
 
 

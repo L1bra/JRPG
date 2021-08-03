@@ -10,17 +10,6 @@
 
 class InputHandler
 {
-public:
-    enum class Key
-    {
-        LEFT,
-        RIGHT,
-        UP,
-        DOWN,
-
-        ENTER,
-        ESC
-    };
 private:
     Bitmask curr_frame_keys;
     Bitmask prev_frame_keys;
@@ -32,6 +21,16 @@ private:
 
     Command* buttonEsc_;
     Command* buttonEnter_;
+public:
+    enum class Key
+    {
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN,
+        ENTER,
+        ESC
+    };
 public:
     InputHandler();
     ~InputHandler();

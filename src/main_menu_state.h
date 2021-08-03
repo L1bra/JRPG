@@ -6,7 +6,11 @@
 #include "gfx.h"
 #include "input.h"
 
-const uint8_t MAIN_MENU_ITEMS = 4;
+#include "object.h"
+#include "c_keyboard_input.h"
+
+
+constexpr uint8_t MAIN_MENU_ITEMS = 4;
 
 class MainMenuState : public State
 {
@@ -22,8 +26,9 @@ private:
 
     std::map<std::string, gui::Button*> buttons;
     
-    sf::Vector2f cursor_pos;
-    unsigned int cursor_index;
+    // sf::Vector2f cursor_pos;
+    std::shared_ptr<Object> cursor;
+    int cursor_index;
 
     bool enter_pressed;
     bool is_closing;
@@ -31,8 +36,8 @@ private:
     void init_gui();
     void reset_gui();
 
-    void update_buttons(sf::Vector2f pos);
-    void render_buttons(sf::RenderWindow& window);
+    void update_buttons();
+    void render_buttons(Window& window);
     void free_buttons();
     
 public:
@@ -41,7 +46,7 @@ public:
 
     void Input() override;
     void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(Window& window) override;
     void OnEnter() override;
     void OnExit() override;
 };

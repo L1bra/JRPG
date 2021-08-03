@@ -1,21 +1,24 @@
 #include "action.h"
 #include <iostream>
 
-PlayerAction::PlayerAction(Entity& entity, const std::array<Entity, MAX_ENTITIES>& entities)
+PlayerAction::PlayerAction()
     :
-    //action_frame_texture(ResourceManager::loadTexture(Textures::ActionFrame, "src/res/background/action_frame.png")),
+    action_frame_texture(ResourceManager::loadTexture(Textures::ActionFrame, "src/res/background/action_frame.png")),
+    action_frame_font(ResourceManager::loadFont(Fonts::Pixel, "src/res/fonts/PixellettersFull.ttf")),
     cursor_texture(ResourceManager::loadTexture(Textures::Cursor, "src/res/background/cursor_white.png")),
-    action_frame(sf::Vector2f(35.f, 40.f)),
+    // action_frame(sf::Vector2f(35.f, 40.f)),
+    action_frame_sprite(*action_frame_texture),
     cursor_sprite(*cursor_texture),
     spawn_action_frame(false),
-    is_ready(false),
     entity(entity),
-    entities(entities),
+    // entities(entities),
     cursor_index(1)
 {
     //action_frame.setScale({3.f, 3.f});
     //action_frame.setFillColor(sf::Color::White);
     //action_frame.setPosition(entity.m_Position);
+
+    init_gui();
 }
 
 PlayerAction::~PlayerAction() {}
@@ -23,54 +26,25 @@ PlayerAction::~PlayerAction() {}
 
 void PlayerAction::Input(sf::Keyboard::Key key_code)
 {
-    // move cursor
-    switch(key_code)
-    {
-        case sf::Keyboard::Up:
-        {
-            if(cursor_index < MAX_ENTITY_INDEX)
-                cursor_index = (cursor_index + 1) % ENTITIES;
-        } break;
-        
-        case sf::Keyboard::Down:
-        {
-            if(cursor_index >= 0)
-                cursor_index = (cursor_index - 1) % ENTITIES;
-        } break;
-
-        case sf::Keyboard::Left:
-        {
-            //
-        } break;
-
-        case sf::Keyboard::Right:
-        {
-            //
-        } break;
-
-        case sf::Keyboard::Enter:
-        {
-            if(!spawn_action_frame)
-                spawn_action_frame = true;
-            else
-                spawn_action_frame = false;            
-        } break;
-    }
+    (void)key_code;
 }
 
 void PlayerAction::Update(float dt)
 {
-    cursor_sprite.setPosition({ entities[cursor_index].m_Position.x + CURSOR_OFFSET, entities[cursor_index].m_Position.y });
-    
-    if(spawn_action_frame)
-        action_frame.setPosition({ cursor_sprite.getPosition().x - CURSOR_OFFSET, cursor_sprite.getPosition().y });
+    (void)dt;
+    update_buttons(cursor_pos);
 }
 
-void PlayerAction::Render(sf::RenderWindow& window)
+void PlayerAction::Render(Window& window)
 {
     if(spawn_action_frame)
-        window.draw(action_frame);
+    {
+        window.draw(action_frame_sprite);
+        render_buttons(window);
+    }   
+
     window.draw(cursor_sprite);
+
 }
 
 void PlayerAction::TimeRemaining()
@@ -90,7 +64,7 @@ bool PlayerAction::isReady()
 
 void PlayerAction::init_cursor()
 {
-    cursor_sprite.setPosition(entity.m_Position);
+    // cursor_sprite.setPosition(entity.m_Position);
 }
 
 void PlayerAction::init_gui()
@@ -99,11 +73,66 @@ void PlayerAction::init_gui()
     init_cursor();
 
     // action frame
-    action_frame.setScale({ 3.f, 3.f });
-    action_frame.setFillColor(sf::Color::White);
+    action_frame_sprite.setScale({ 3.f, 3.f });
+    sf::FloatRect fr = action_frame_sprite.getGlobalBounds();
+
+    action_frame_buttons["ATTACK"] = new gui::Button(
+        gui::p2pX(50.f, fr), gui::p2pY(10.f, fr),
+        gui::p2pX(50.f, fr), gui::p2pY(50.f, fr),
+        *action_frame_font, "Attack", gui::calcCharSize(fr)
+    );
+
+    action_frame_buttons["SPELL"] = new gui::Button(
+        gui::p2pX(50.f, fr), gui::p2pY(20.f, fr),
+        gui::p2pX(50.f, fr), gui::p2pY(50.f, fr),
+        *action_frame_font, "Spell", gui::calcCharSize(fr)
+    );
+
+    action_frame_buttons["ITEM"] = new gui::Button(
+        gui::p2pX(50.f, fr), gui::p2pY(30.f, fr),
+        gui::p2pX(50.f, fr), gui::p2pY(50.f, fr),
+        *action_frame_font, "Item", gui::calcCharSize(fr)
+    );
+
+    action_frame_buttons["DEF"] = new gui::Button(
+        gui::p2pX(50.f, fr), gui::p2pY(40.f, fr),
+        gui::p2pX(50.f, fr), gui::p2pY(50.f, fr),
+        *action_frame_font, "Def", gui::calcCharSize(fr)
+    );
+
+    std::cout << "frame x: " << fr.width << " y: " << fr.height << "\n";
+
+    std::cout << "ATTACK x: " << action_frame_buttons["ATTACK"]->get_pos().x << " y: " << action_frame_buttons["ATTACK"]->get_pos().y << "\n";
+    std::cout << "SPELL x: " << action_frame_buttons["SPELL"]->get_pos().x << " y: " << action_frame_buttons["ATTACK"]->get_pos().y << "\n";
+    std::cout << "ITEM x: " << action_frame_buttons["ITEM"]->get_pos().x << " y: " << action_frame_buttons["ATTACK"]->get_pos().y << "\n";
+    std::cout << "DEF x: " << action_frame_buttons["DEF"]->get_pos().x << " y: " << action_frame_buttons["ATTACK"]->get_pos().y << "\n";
 }
 
+void PlayerAction::update_buttons(sf::Vector2f pos)
+{
+    for(auto& it : action_frame_buttons)
+    {
+        it.second->update(pos);
+    }
+}
 
+void PlayerAction::render_buttons(Window& window)
+{
+    for(auto& it : action_frame_buttons)
+    {
+        it.second->render(window);
+    }
+}
+
+void PlayerAction::free_buttons()
+{
+    for(auto& button : action_frame_buttons)
+    {
+        delete button.second;
+    }
+
+    action_frame_buttons.clear();
+}
 
 
 // AI
@@ -111,11 +140,12 @@ void PlayerAction::init_gui()
 
 
 
-AIAction::AIAction(Entity& entity, const std::array<Entity, MAX_ENTITIES>& entities)
+AIAction::AIAction()
     :
     entity(entity),
     is_ready(true)
 {
+    // (void)entities;
     //
 }
 
@@ -124,18 +154,20 @@ AIAction::~AIAction() {}
 
 void AIAction::Input(sf::Keyboard::Key key_code)
 {
+    (void)key_code;
 }
 
 
 void AIAction::Update(float dt)
 {
+    (void)dt;
     // update
 }
 
 
-void AIAction::Render(sf::RenderWindow& window)
+void AIAction::Render(Window& window)
 {
-    
+    (void)window;
 }
 
 void AIAction::TimeRemaining()

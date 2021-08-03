@@ -28,8 +28,6 @@ void Game::free_states()
 
 void Game::init()
 {
-    init_settings();
-
     gameMode().Add("loading", loading_state);
     gameMode().Add("mainmenu", menu_state);
     gameMode().Add("worldmap", world_state);

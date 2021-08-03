@@ -1,6 +1,7 @@
 #ifndef GUI_H_
 #define GUI_H_
 
+#include "window.h"
 #include "input.h"
 
 #include <SFML/Graphics.hpp>
@@ -83,7 +84,7 @@ namespace gui
 
         bool is_pressed() const;
 
-        const std::string get_text() const;
+        const std::string& get_text() const;
         const short unsigned& get_id() const;
         sf::Vector2f get_pos() const;
         BTN_STATE get_state() const;
@@ -93,7 +94,7 @@ namespace gui
 
 
         void update(const sf::Vector2f& cursor_pos);   // const sf::Vector2i& mouse_pos_window;
-        void render(sf::RenderTarget& target);
+        void render(Window& window);
     };
 }
 

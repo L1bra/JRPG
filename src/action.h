@@ -6,8 +6,6 @@
 #include "random_gen.h"
 #include "gui.h"
 
-#include <array>
-
 
 // TODO: resolve identical name conflict
 static const std::size_t MAX_ENTITY_INDEX = 2;   // MAX ENTITY INDEX
@@ -23,7 +21,7 @@ public:
 
     virtual void Input(sf::Keyboard::Key key_code) = 0;
     virtual void Update(float dt) = 0;
-    virtual void Render(sf::RenderWindow& window) = 0;
+    virtual void Render(Window& window) = 0;
 
     virtual void TimeRemaining() = 0;
     virtual void Decide() = 0;
@@ -34,32 +32,39 @@ public:
 class PlayerAction : public Action
 {
 private:
-    enum class ACTION_BTN { ATTACK = 0, SPELL, ITEM, DEF };
+    enum ACTION_BTN { ATTACK = 0, SPELL, ITEM, DEF };
 
-    //std::shared_ptr<sf::Texture> action_frame_texture;
-    //sf::Sprite action_frame_sprite;
-    sf::RectangleShape action_frame;
-    std::map<std::string, gui::Button*> action_frame_buttons;
-
+    std::shared_ptr<sf::Texture> action_frame_texture;
+    std::shared_ptr<sf::Font> action_frame_font;
     std::shared_ptr<sf::Texture> cursor_texture;
+    sf::Sprite action_frame_sprite;
     sf::Sprite cursor_sprite;
-    unsigned int cursor_index;
-
-    Entity& entity;
-    const std::array<Entity, MAX_ENTITIES> entities;
-
     bool spawn_action_frame;
+
+    // sf::RectangleShape action_frame;
+    std::map<std::string, gui::Button*> action_frame_buttons;
+    Entity& entity;
+    // const std::array<Entity, MAX_ENTITIES> entities;
+
+    unsigned int cursor_index;
+    sf::Vector2f cursor_pos;
+
+    bool enter_pressed;
 public:
     bool is_ready;
 private:
     void init_gui();
     void init_cursor();
+
+    void update_buttons(sf::Vector2f pos);
+    void render_buttons(Window& window);
+    void free_buttons();
 public:
-    PlayerAction(Entity& entity, const std::array<Entity, MAX_ENTITIES>& entities);
+    PlayerAction();
     ~PlayerAction();
 
     void Input(sf::Keyboard::Key key_code) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(Window& window) override;
     void Update(float dt) override;
 
     void TimeRemaining() override;
@@ -78,11 +83,11 @@ private:
 public:
     bool is_ready;
 public:
-    AIAction(Entity& entity, const std::array<Entity, MAX_ENTITIES>& entities);
+    AIAction();
     ~AIAction();
 
     void Input(sf::Keyboard::Key key_code) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(Window& window) override;
     void Update(float dt) override;
 
     void TimeRemaining() override;

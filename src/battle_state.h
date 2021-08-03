@@ -39,14 +39,15 @@ private:
     std::shared_ptr<sf::Texture> m_BattleTexture;
     sf::Sprite m_BattleSprite;
     
-    std::array<Entity, MAX_ENTITY> entities;
-    std::vector<Action*> m_Actions;
-    
-    ds::Queue<Entity> queue;
-
+    StateMachine* battleMode;
     GFX* gfx_data;
     sf::VideoMode& vm;
-    StateMachine* battleMode;
+    
+    // std::array<Entity, MAX_ENTITY> entities;
+    std::vector<Action*> m_Actions;
+    
+    // cds::Queue<Entity> queue;
+
 private:
     void init_party_entities();
     void init_enemy_entities();
@@ -59,75 +60,9 @@ public:
     BattleState(GFX* gfx);
     ~BattleState();
 
-    void Input(sf::Keyboard::Key key_code) override;
+    void Input() override;
     void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
-    void OnEnter() override;
-    void OnExit() override;
-};
-
-
-class BattleTick : public State
-{
-private:
-    Action* top_action;
-    std::vector<Action*> battle_actions;
-    StateMachine* battleMode;
-public:
-    BattleTick(StateMachine* battleMode, std::vector<Action*> battle_actions);
-    ~BattleTick();
-
-    void Input(sf::Keyboard::Key key_code) override;
-    void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
-    void OnEnter() override;
-    void OnExit() override;
-};
-
-
-class BattleExecute : public State
-{
-public:
-    BattleExecute(StateMachine* battleMode, std::vector<Action*> battle_actions);
-    ~BattleExecute();
-
-    void Input(sf::Keyboard::Key key_code) override;
-    void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
-    void OnEnter() override;
-    void OnExit() override;
-private:
-    //
-};
-
-
-class BattleMenuState : public State
-{
-private:
-    //
-public:
-    BattleMenuState();
-    ~BattleMenuState();
-
-    void Input(sf::Keyboard::Key key_code) override;
-    void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
-    void OnEnter() override;
-    void OnExit() override;
-};
-
-
-class BattleAnimationState : public State
-{
-private:
-    //
-public:
-    BattleAnimationState();
-    ~BattleAnimationState();
-
-    void Input(sf::Keyboard::Key key_code) override;
-    void Update(float elapsedTime) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(Window& window) override;
     void OnEnter() override;
     void OnExit() override;
 };

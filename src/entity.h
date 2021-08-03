@@ -21,32 +21,14 @@ enum class Alive_state : uint8_t
     Walking
 };
 
-
-struct Entity
+class Entity
 {
-    Entity_state m_State;
-    Alive_state m_Alive_state;
-    sf::Keyboard::Key direction;
+public:
+    virtual ~Entity() {};
 
-    sf::Vector2f m_Position;
-    std::shared_ptr<sf::Texture> m_Texture_ptr;
-    sf::Sprite m_Sprite;
-
-    int hp;
-    float m_Speed;
-    bool player_contolled;
-
-    sf::Vector2f get_position();
-
-    void move(sf::Keyboard::Key key_code);
-    void stop();
-
-    void draw(sf::RenderWindow& window) const;
-    void update(float dt);
-
-    bool operator== (const Entity& rhs) const;
+    // virtual void move() = 0;
+    virtual void draw(sf::RenderWindow& window) = 0;
+    virtual void update(float dt) = 0;
 };
-
-Entity init_entity(sf::Vector2f position, sf::String sprite, bool player_controlled = false);
 
 #endif  // ENTITY_H_

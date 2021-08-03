@@ -5,9 +5,8 @@
 #include <vector>
 #include <cassert>
 
-namespace ds
+namespace cds
 {
-
     template<typename T>
     class Queue
     {
@@ -134,7 +133,7 @@ namespace ds
         }    
     }
 
-}
+}   // cds
 
 
 #endif  // QUEUE_H_

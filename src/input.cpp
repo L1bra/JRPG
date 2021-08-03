@@ -2,14 +2,10 @@
 
 InputHandler::InputHandler()
 {
-    buttonUp_ = new CursorUp();
-    buttonDown_ = new CursorDown();
 }
 
 InputHandler::~InputHandler()
 {
-    delete buttonUp_;
-    delete buttonDown_;
 }
 
 void InputHandler::update()
@@ -32,7 +28,6 @@ void InputHandler::update()
                         (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) ||
                         (sf::Keyboard::isKeyPressed(sf::Keyboard::S)));
 
-
     curr_frame_keys.set_bit((int)Key::ESC),
                         sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
 
@@ -44,14 +39,10 @@ void InputHandler::update()
 // is_key_down or is_key_up for single input
 Command* InputHandler::handle_input()
 {
-    if(is_key_pressed(Key::LEFT)) return buttonLeft_;
-    if(is_key_pressed(Key::RIGHT)) return buttonRight_; 
-    
+    if(is_key_down(Key::LEFT)) return buttonLeft_;
+    if(is_key_down(Key::RIGHT)) return buttonRight_; 
     if(is_key_down(Key::UP)) return buttonUp_;
     if(is_key_down(Key::DOWN)) return buttonDown_;
-
-    if(is_key_pressed(Key::ENTER)) return buttonEnter_;
-    if(is_key_pressed(Key::ESC)) return buttonEsc_;
 
     return NULL;
 }
