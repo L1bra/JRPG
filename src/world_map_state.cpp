@@ -8,8 +8,8 @@ WorldMapState::WorldMapState(Window& window)
 	m_scene_graph(),
 	m_scene_layers(),
 	m_world_bounds(0.f, 0.f, m_world_view.getSize().x, 2000.f), // TODO
-	m_spawn_position({ gui::p2pX(6.f, m_window.get_gfx().resolution),
-		gui::p2pY(70.f, m_window.get_gfx().resolution) }),
+	m_spawn_position({ gui::p2px(6.f, m_window.get_gfx().resolution),
+		gui::p2py(70.f, m_window.get_gfx().resolution) }),
 	m_scroll_speed(-50.f),
 	m_player(nullptr)
 {

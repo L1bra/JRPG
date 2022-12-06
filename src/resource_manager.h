@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <map>  // unordered ?
+#include <assert.h>
 
 template<typename Resource, typename Identifier>
 class ResourceManager

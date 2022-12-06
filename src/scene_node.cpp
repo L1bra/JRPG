@@ -82,9 +82,7 @@ void SceneNode::on_command(const Command& command, sf::Time dt)
 {
 	// Command current node if category matched
 	if (command.category & get_category())
-	{
 		command.action(*this, dt);
-	}
 
 	for (auto& child : m_children)
 		child->on_command(command, dt);

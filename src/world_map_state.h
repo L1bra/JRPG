@@ -1,11 +1,12 @@
 #pragma once
 
-#include "gui.h"
 #include "player.h"
+#include "window.h"
 #include "resource_identifier.h"
 #include "sprite_node.h"
 #include "command.h"
 #include "command_queue.h"
+#include "utility.h"
 
 #include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/View.hpp>

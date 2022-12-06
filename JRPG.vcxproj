@@ -143,35 +143,62 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\button.cpp" />
+    <ClCompile Include="src\component.cpp" />
+    <ClCompile Include="src\container.cpp" />
+    <ClCompile Include="src\game_state.cpp" />
     <ClCompile Include="src\command.cpp" />
     <ClCompile Include="src\command_queue.cpp" />
     <ClCompile Include="src\entity.cpp" />
-    <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\gfx.cpp" />
-    <ClCompile Include="src\gui.cpp" />
+    <ClCompile Include="src\label.cpp" />
+    <ClCompile Include="src\loading_state.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\menu_state.cpp" />
+    <ClCompile Include="src\parallel_task.cpp" />
+    <ClCompile Include="src\pause_state.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\magic.cpp" />
     <ClCompile Include="src\resource_manager.cpp" />
     <ClCompile Include="src\scene_node.cpp" />
+    <ClCompile Include="src\settings_state.cpp" />
     <ClCompile Include="src\sprite_node.cpp" />
+    <ClCompile Include="src\state.cpp" />
+    <ClCompile Include="src\state_stack.cpp" />
+    <ClCompile Include="src\title_state.cpp" />
+    <ClCompile Include="src\utility.cpp" />
     <ClCompile Include="src\window.cpp" />
     <ClCompile Include="src\world_map_state.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\button.h" />
+    <ClInclude Include="src\component.h" />
+    <ClInclude Include="src\container.h" />
+    <ClInclude Include="src\game_state.h" />
     <ClInclude Include="src\category.h" />
     <ClInclude Include="src\command.h" />
     <ClInclude Include="src\command_queue.h" />
     <ClInclude Include="src\entity.h" />
-    <ClInclude Include="src\game.h" />
+    <ClInclude Include="src\application.h" />
     <ClInclude Include="src\gfx.h" />
-    <ClInclude Include="src\gui.h" />
+    <ClInclude Include="src\label.h" />
+    <ClInclude Include="src\loading_state.h" />
+    <ClInclude Include="src\menu_state.h" />
+    <ClInclude Include="src\parallel_task.h" />
+    <ClInclude Include="src\pause_state.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\magic.h" />
     <ClInclude Include="src\resource_identifier.h" />
     <ClInclude Include="src\resource_manager.h" />
     <ClInclude Include="src\scene_node.h" />
+    <ClInclude Include="src\settings_state.h" />
     <ClInclude Include="src\sprite_node.h" />
+    <ClInclude Include="src\state.h" />
+    <ClInclude Include="src\state_identifier.h" />
+    <ClInclude Include="src\state_stack.h" />
+    <ClInclude Include="src\title_state.h" />
+    <ClInclude Include="src\utility.h" />
     <ClInclude Include="src\window.h" />
     <ClInclude Include="src\world_map_state.h" />
   </ItemGroup>

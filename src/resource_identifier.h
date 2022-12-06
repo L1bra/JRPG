@@ -4,6 +4,7 @@
 namespace sf
 {
 	class Texture;
+    class Font;
 }
 
 namespace Textures
@@ -11,7 +12,7 @@ namespace Textures
 	enum ID
 	{
         // background (temp)
-        LoadingBackground,
+        TitleScreen,
         MainMenuBackground,
         WorldBackground,
         LocalBackground,
@@ -21,12 +22,26 @@ namespace Textures
         MAGIC0,
         MAGIC1,
         MAGIC2,
-        ENEMY
+        ENEMY,
+
+        // button
+        ButtonNormal,
+        ButtonSelected,
+        ButtonPressed
 	};
-}   
+}
+
+namespace Fonts
+{
+    enum ID
+    {
+        Main,
+    };
+}
 
 // Forward declaration and few typedefs
 template<typename Resource, typename Identifier>
 class ResourceManager;
 
 typedef ResourceManager<sf::Texture, Textures::ID> TextureHolder;
+typedef ResourceManager<sf::Font, Fonts::ID> FontHolder;

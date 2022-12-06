@@ -1,5 +1,4 @@
-#ifndef WINDOW_H_
-#define WINDOW_H_
+#pragma once
 
 #include "gfx.h"
 
@@ -33,5 +32,3 @@ public:
     void close();
 
 };
-
-#endif  // WINDOW_H_
