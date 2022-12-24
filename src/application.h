@@ -9,8 +9,11 @@
 #include "title_state.h"
 #include "menu_state.h"
 #include "settings_state.h"
-#include "game_state.h"
+#include "world_state.h"
 #include "pause_state.h"
+
+// LDtk
+#include <LDtkLoader/Project.hpp>
 
 
 class Application
@@ -22,6 +25,7 @@ private:
     Player m_player;
 
     StateStack m_state_stack;
+    ldtk::Project m_ldtk_project;
 
     // Statistic stuff  
     sf::Font m_statistic_font;

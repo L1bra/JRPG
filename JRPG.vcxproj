@@ -146,7 +146,7 @@
     <ClCompile Include="src\button.cpp" />
     <ClCompile Include="src\component.cpp" />
     <ClCompile Include="src\container.cpp" />
-    <ClCompile Include="src\game_state.cpp" />
+    <ClCompile Include="src\world_state.cpp" />
     <ClCompile Include="src\command.cpp" />
     <ClCompile Include="src\command_queue.cpp" />
     <ClCompile Include="src\entity.cpp" />
@@ -166,16 +166,16 @@
     <ClCompile Include="src\sprite_node.cpp" />
     <ClCompile Include="src\state.cpp" />
     <ClCompile Include="src\state_stack.cpp" />
+    <ClCompile Include="src\tile_map.cpp" />
     <ClCompile Include="src\title_state.cpp" />
     <ClCompile Include="src\utility.cpp" />
     <ClCompile Include="src\window.cpp" />
-    <ClCompile Include="src\world_map_state.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\button.h" />
     <ClInclude Include="src\component.h" />
     <ClInclude Include="src\container.h" />
-    <ClInclude Include="src\game_state.h" />
+    <ClInclude Include="src\world_state.h" />
     <ClInclude Include="src\category.h" />
     <ClInclude Include="src\command.h" />
     <ClInclude Include="src\command_queue.h" />
@@ -197,18 +197,22 @@
     <ClInclude Include="src\state.h" />
     <ClInclude Include="src\state_identifier.h" />
     <ClInclude Include="src\state_stack.h" />
+    <ClInclude Include="src\tile_map.h" />
     <ClInclude Include="src\title_state.h" />
     <ClInclude Include="src\utility.h" />
     <ClInclude Include="src\window.h" />
-    <ClInclude Include="src\world_map_state.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="assets\level.ldtk" />
     <None Include="cfg\gfx.ini" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="res\fonts\PixellettersFull.ttf" />
+    <Font Include="assets\fonts\PixellettersFull.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\tileset.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -28,4 +28,9 @@ namespace GUI
 	{
 		m_text.setString(text);
 	}
+
+	void Label::set_character_size(const unsigned int size)
+	{
+		m_text.setCharacterSize(size);
+	}
 }

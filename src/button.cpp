@@ -33,6 +33,11 @@ namespace GUI
 		gui::center_origin<sf::Text>(m_text);
 	}
 
+	void Button::set_characted_size(unsigned int size)
+	{
+		m_text.setCharacterSize(size);
+	}
+
 	void Button::set_toggle(bool flag)
 	{
 		m_is_toggle = flag;

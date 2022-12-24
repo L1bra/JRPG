@@ -11,6 +11,9 @@ namespace Textures
 {
 	enum ID
 	{
+        // Tilesets
+        Tileset,
+
         // background (temp)
         TitleScreen,
         MainMenuBackground,

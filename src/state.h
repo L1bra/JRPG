@@ -4,6 +4,8 @@
 #include "state_identifier.h"
 #include "resource_identifier.h"
 
+#include <LDtkLoader/Project.hpp>
+
 #include <SFML/System/Time.hpp>
 #include <SFML/Window/Event.hpp>
 
@@ -25,12 +27,13 @@ public:
 
 	struct Context
 	{
-		Context(Window& window, TextureHolder& textures, FontHolder& fonts, Player& player);
+		Context(Window& window, TextureHolder& textures, FontHolder& fonts, Player& player, ldtk::Project& project);
 
 		Window* m_window;
 		TextureHolder* m_textures;
 		FontHolder* m_fonts;
 		Player* m_player;
+		ldtk::Project* m_ldtk_project;
 	};
 
 public:

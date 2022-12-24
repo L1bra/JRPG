@@ -7,8 +7,8 @@
 class Window
 {
 private:
+    GFX* m_gfx;
     sf::RenderWindow* m_window;
-    GFX* gfx;
 public:
     Window();
     ~Window();
@@ -21,6 +21,7 @@ public:
     void end_draw();
 
     void set_view(const sf::View& view) const;
+    void resize_view();
     const sf::View& get_view() const;
     const sf::View& get_default_view() const;
     GFX& get_gfx() const;
@@ -30,5 +31,4 @@ public:
     
     bool is_open() const;
     void close();
-
 };

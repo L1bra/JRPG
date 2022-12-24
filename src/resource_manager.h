@@ -30,8 +30,7 @@ void ResourceManager<Resource, Identifier>::load(Identifier id, const std::strin
         throw std::runtime_error("ResourceManager::load - Failed to load: " + filename);
 
     auto inserted = m_resource_map.insert(std::make_pair(id, std::move(resource)));
-    // TODO;
-    //assert(inserted.second);
+    assert(inserted.second);
 }
 
 template<typename Resource, typename Identifier>
@@ -50,7 +49,7 @@ template<typename Resource, typename Identifier>
 Resource& ResourceManager<Resource, Identifier>::get(Identifier id)
 {
     auto found = m_resource_map.find(id);
-    //assert(found != m_resource_map.end());
+    assert(found != m_resource_map.end());
 
     return *found->second;
 }

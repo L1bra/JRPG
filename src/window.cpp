@@ -3,13 +3,13 @@
 
 Window::Window()
     :
-    gfx(new GFX())
+    m_gfx(new GFX())
 {
-    if(gfx->load("cfg/gfx.ini"))
+    if(m_gfx->load("cfg/gfx.ini"))
     {
-        m_window = new sf::RenderWindow(gfx->resolution, gfx->title, (gfx->fullscreen ? sf::Style::Fullscreen : sf::Style::Default));
-        m_window->setFramerateLimit(gfx->framerate);
-        m_window->setVerticalSyncEnabled(gfx->vsync);
+        m_window = new sf::RenderWindow(m_gfx->resolution, m_gfx->title, (m_gfx->fullscreen ? sf::Style::Fullscreen : sf::Style::Default));
+        m_window->setFramerateLimit(m_gfx->framerate);
+        m_window->setVerticalSyncEnabled(m_gfx->vsync);
     }
     else
     {
@@ -21,7 +21,7 @@ Window::Window()
 
 Window::~Window()
 {
-    delete gfx;
+    delete m_gfx;
     delete m_window;
 }
 
@@ -54,6 +54,13 @@ void Window::set_view(const sf::View& view) const
     m_window->setView(view);
 }
 
+void Window::resize_view()
+{
+    float ap = float(this->get_render_window().getSize().x) / float(this->get_render_window().getSize().y);
+    auto view = this->get_view();
+    view.setSize(m_gfx->resolution.width * ap, m_gfx->resolution.height);
+}
+
 const sf::View& Window::get_view() const
 {
     return m_window->getView();
@@ -66,7 +73,7 @@ const sf::View& Window::get_default_view() const
 
 GFX& Window::get_gfx() const
 {
-    return *gfx;
+    return *m_gfx;
 }
 
 sf::RenderWindow& Window::get_render_window() const

@@ -21,6 +21,7 @@ namespace GUI
 
 		virtual bool is_selectable() const;
 		void set_text(const std::string& text);
+		void set_character_size(const unsigned int size);
 		
 		virtual void handle_event(const sf::Event& event);
 	private:

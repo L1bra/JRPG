@@ -6,7 +6,10 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 	m_gui_container()
 {
 	const sf::Vector2f view_size = context.m_window->get_view().getSize();
+	const auto vm = context.m_window->get_gfx().resolution;
+
 	m_background_shape.setSize(view_size);
+	m_background_shape.setScale({ view_size.x / game_resolution.x, view_size.y / game_resolution.y });
 	m_background_shape.setFillColor(sf::Color::Black);
 
 	// build key binding button and lables
@@ -20,6 +23,7 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 	auto back_button = std::make_shared<GUI::Button>(*context.m_fonts, *context.m_textures);
 	back_button->setPosition(80.f, 375.f);
 	back_button->set_text("Back");
+	back_button->set_characted_size(gui::calc_char_size(vm));
 	back_button->set_callback(std::bind(&SettingsState::request_stack_pop, this));
 
 	m_gui_container.pack(back_button);
@@ -79,13 +83,17 @@ void SettingsState::update_labels()
 
 void SettingsState::add_button_label(Player::Action action, float y, const std::string& text, Context context)
 {
+	const auto vm = context.m_window->get_gfx().resolution;
+
 	m_binding_buttons[action] = std::make_shared<GUI::Button>(*context.m_fonts, *context.m_textures);
 	m_binding_buttons[action]->setPosition(80.f, y);
 	m_binding_buttons[action]->set_text(text);
+	m_binding_buttons[action]->set_characted_size(gui::calc_char_size(vm));
 	m_binding_buttons[action]->set_toggle(true);
 
 	m_binding_labels[action] = std::make_shared<GUI::Label>("", *context.m_fonts);
 	m_binding_labels[action]->setPosition(300.f, y + 15.f);
+	m_binding_labels[action]->set_character_size(gui::calc_char_size(vm));
 
 	m_gui_container.pack(m_binding_buttons[action]);
 	m_gui_container.pack(m_binding_labels[action]);

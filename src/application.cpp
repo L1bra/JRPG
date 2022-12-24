@@ -8,16 +8,27 @@ Application::Application()
     m_player(),
     m_textures(),
     m_fonts(),
-    m_state_stack(State::Context(m_window, m_textures, m_fonts, m_player)),
+    m_ldtk_project(),
+    m_state_stack(State::Context(m_window, m_textures, m_fonts, m_player, m_ldtk_project)),
     m_statistic_font(),
     m_statistic_text(),
     m_statistic_update_time(),
     m_statistic_num_frames(0)
 {
+    try
+    {
+        m_ldtk_project.loadFromFile("assets//levels//world.ldtk");
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << ex.what() << "\n";
+    }
+
     m_window.get_render_window().setKeyRepeatEnabled(false);
 
-    m_fonts.load(Fonts::Main, "res/fonts/PixellettersFull.ttf");
-    m_textures.load(Textures::TitleScreen, "res/background/title_screen.png");
+    m_fonts.load(Fonts::Main, "assets/fonts/PixellettersFull.ttf");
+    m_textures.load(Textures::TitleScreen, "assets/background/title_screen.png");
+    
 
     m_statistic_text.setFont(m_fonts.get(Fonts::Main));
     m_statistic_text.setPosition(5.f, 5.f);
@@ -73,6 +84,11 @@ void Application::input()
             {
                 m_window.close();
             } break;
+
+            case sf::Event::Resized:
+            {
+                m_window.resize_view();
+            } break;
         }
     }
 }
@@ -111,7 +127,7 @@ void Application::register_states()
     m_state_stack.register_state<TitleState>(States::Title);
     m_state_stack.register_state<MenuState>(States::Menu);
     m_state_stack.register_state<SettingsState>(States::Settings);
-    m_state_stack.register_state<GameState>(States::Game);
+    m_state_stack.register_state<WorldState>(States::World);
     m_state_stack.register_state<PauseState>(States::Pause);
 }
 

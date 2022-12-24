@@ -30,6 +30,7 @@ namespace GUI
 
 		void set_callback(Callback callback);
 		void set_text(const std::string& text);
+		void set_characted_size(unsigned size);
 		void set_toggle(bool flag);
 
 		virtual bool is_selectable() const;

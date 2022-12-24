@@ -11,6 +11,9 @@
 #include <cmath>
 
 
+const sf::Vector2f game_resolution{ 640.f, 360.f };
+
+
 namespace sf
 {
 	class Sprite;
@@ -40,7 +43,7 @@ namespace gui
 	}
 
 	template<typename T>
-	unsigned cacl_char_size(const T& vm, const unsigned mod = 60)
+	unsigned calc_char_size(const T& vm, const unsigned mod = 60)
 	{
 		return static_cast<unsigned>((vm.width + vm.height) / mod);
 	}
